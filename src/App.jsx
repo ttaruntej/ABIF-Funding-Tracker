@@ -219,7 +219,7 @@ const Dashboard = () => {
     // Filtered set for current category tab
     const filtered = activeCategory === 'all'
         ? opportunities
-        : opportunities.filter(o => o.category === activeCategory);
+        : opportunities.filter(o => (o.category || '').toLowerCase() === activeCategory);
 
     const verifiedCount = filtered.filter(o => o.linkStatus === 'verified').length;
     const probableCount = filtered.filter(o => o.linkStatus === 'probable').length;
