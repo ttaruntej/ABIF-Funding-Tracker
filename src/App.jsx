@@ -104,6 +104,7 @@ const Dashboard = () => {
     const [error, setError] = useState(null);
     const [stats, setStats] = useState({ total: 0, active: 0, closingSoon: 0 });
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [refreshSuccess, setRefreshSuccess] = useState(false);
     const [countdown, setCountdown] = useState(0);
     const [activeCategory, setActiveCategory] = useState('all');
     const [lastUpdated, setLastUpdated] = useState(
@@ -127,16 +128,24 @@ const Dashboard = () => {
                 setStats({ total: data.length, active, closingSoon: closing });
                 setError(null);
                 setLoading(false);
-                setIsRefreshing(false);
                 setLastUpdated(
                     `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                 );
+
+                // Show success state briefly before hiding
+                setRefreshSuccess(true);
+                setTimeout(() => {
+                    setIsRefreshing(false);
+                    setRefreshSuccess(false);
+                }, 1500);
+
             })
             .catch(err => {
                 console.error('Failed to fetch opportunities:', err);
                 setError(err.message);
                 setLoading(false);
                 setIsRefreshing(false);
+                setRefreshSuccess(false);
             });
     };
 
@@ -145,16 +154,17 @@ const Dashboard = () => {
     useEffect(() => {
         let timer;
         // Simulating the network fetch delay to show the UI
-        if (isRefreshing && countdown > 0) {
+        if (isRefreshing && !refreshSuccess && countdown > 0) {
             timer = setTimeout(() => setCountdown(c => c - 1), 1000);
-        } else if (isRefreshing && countdown === 0) {
+        } else if (isRefreshing && !refreshSuccess && countdown === 0) {
             fetchData();
         }
         return () => clearTimeout(timer);
-    }, [isRefreshing, countdown]);
+    }, [isRefreshing, countdown, refreshSuccess]);
 
     const handleRefresh = () => {
         setIsRefreshing(true);
+        setRefreshSuccess(false);
         setCountdown(3); // Reduced from 8s to 3s since it's just fetching the latest JSON now
     };
 
@@ -206,14 +216,24 @@ const Dashboard = () => {
             {/* ── Refresh overlay ───────────────────────────────── */}
             {isRefreshing && (
                 <div className="refresh-overlay">
-                    <div className="refresh-modal">
-                        <div className="spinner"></div>
-                        <h2>Updating Dashboard</h2>
-                        <p>Fetching latest data from the nightly automated scraper...</p>
-                        <div className="countdown-container">
-                            <div className="countdown-bar" style={{ width: `${(3 - countdown) / 3 * 100}%`, transition: 'width 1s linear' }}></div>
-                        </div>
-                        <span className="timer-text">{countdown}s</span>
+                    <div className="refresh-modal animate-modal">
+                        {refreshSuccess ? (
+                            <div className="success-state animate-success">
+                                <div className="success-icon">✓</div>
+                                <h2>Dashboard Updated!</h2>
+                                <p style={{ color: 'var(--secondary)' }}>Successfully synced latest data.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="spinner"></div>
+                                <h2>Updating Dashboard</h2>
+                                <p>Fetching latest data from the nightly automated scraper...</p>
+                                <div className="countdown-container">
+                                    <div className="countdown-bar" style={{ width: `${(3 - countdown) / 3 * 100}%`, transition: 'width 1s linear' }}></div>
+                                </div>
+                                <span className="timer-text">{countdown}s</span>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
@@ -224,7 +244,7 @@ const Dashboard = () => {
                     <h1>ABIF</h1>
                     <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem' }}>Opportunities Tracker</p>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                <div className="header-actions">
                     <button className="btn-refresh" onClick={handleRefresh} disabled={isRefreshing}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M23 4v6h-6"></path>
@@ -233,7 +253,7 @@ const Dashboard = () => {
                         </svg>
                         Update Dashboard
                     </button>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', textAlign: 'right' }}>
+                    <div className="last-updated-text" style={{ fontSize: '0.8rem', color: 'var(--text-dim)', textAlign: 'right' }}>
                         Last Refreshed: {lastUpdated}
                     </div>
                 </div>
