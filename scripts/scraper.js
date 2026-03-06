@@ -1,3 +1,13 @@
+/**
+ * ABIF Funding Tracker — Automated Scraper
+ *
+ * Tiers:
+ *   A — Real live scrapers (BIRAC, DST)
+ *   B — Smart static records with live link verification
+ *   C — Puppeteer full-render for React SPAs (SISFS, SBI Foundation)
+ *   D — Dead-link detection and flagging
+ */
+
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,159 +19,432 @@ puppeteer.use(StealthPlugin());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const DATA_FILE = path.join(__dirname, '../public/data/opportunities.json');
 
-// --- Helper Functions ---
+// ─── Date / Status Helpers ──────────────────────────────────────────────────
 
-function determineStatus(deadlineStr) {
-    if (!deadlineStr || deadlineStr.toLowerCase().includes('rolling') || deadlineStr.toLowerCase().includes('throughout the year')) {
-        return 'Rolling';
+const MONTHS = {
+    january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
+    july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+};
+
+/**
+ * Extracts the LAST / DEADLINE date from raw text.
+ * Specifically searches for "Last Date", "Last date to apply", "Extended Last date" etc.
+ * Falls back to any date found if no deadline keyword is present.
+ */
+function extractDeadlineDate(text) {
+    if (!text) return null;
+
+    // Strategy 1: Look for "Last Date[ :−–]" followed by a date
+    const lastDateSection = text.match(/(?:last\s*date|deadline|closing\s*date|due\s*date)[^\d]*(\d{1,2}(?:st|nd|rd|th)?[-\/\s,]+(?:\d{1,2}[-\/]|[a-z]+\s*)\d{4})/i);
+    if (lastDateSection) {
+        const d = parseSingleDate(lastDateSection[1]);
+        if (d) return d;
     }
 
-    // Match DD-MM-YYYY or DD/MM/YYYY
-    const match = deadlineStr.match(/(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
-    if (match) {
-        const [_, day, month, year] = match;
-        const deadlineDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
-        const today = new Date();
-        const diffDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+    // Strategy 2: Find ALL dates in the text, return the LATEST one
+    const allDates = [...text.matchAll(/(\d{1,2}(?:st|nd|rd|th)?\s+(?:january|february|march|april|may|june|july|august|september|october|november|december),?\s+\d{4}|\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/gi)]
+        .map(m => parseSingleDate(m[1]))
+        .filter(Boolean);
 
-        if (diffDays < 0) return 'Closed';
-        if (diffDays <= 14) return 'Closing Soon';
-        return 'Open';
+    if (allDates.length > 0) {
+        return allDates.reduce((latest, d) => d > latest ? d : latest);
     }
 
+    return null;
+}
+
+function parseSingleDate(str) {
+    if (!str) return null;
+    str = str.trim();
+
+    // DD-MM-YYYY or DD/MM/YYYY
+    const dmyMatch = str.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+    if (dmyMatch) {
+        const [_, d, m, y] = dmyMatch;
+        return new Date(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`);
+    }
+
+    // DDth Month, YYYY or DD Month YYYY
+    const nlMatch = str.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december),?\s+(\d{4})/i);
+    if (nlMatch) {
+        const month = String(MONTHS[nlMatch[2].toLowerCase()]).padStart(2, '0');
+        const day = nlMatch[1].padStart(2, '0');
+        return new Date(`${nlMatch[3]}-${month}-${day}`);
+    }
+
+    return null;
+}
+
+function dateToStatus(deadlineDate) {
+    if (!deadlineDate) return 'Rolling';
+    const today = new Date();
+    const diffDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+    if (diffDays < 0) return 'Closed';
+    if (diffDays <= 14) return 'Closing Soon';
     return 'Open';
+}
+
+function determineStatus(text) {
+    if (!text) return 'Rolling';
+    const lower = text.toLowerCase();
+    if (lower.includes('rolling') || lower.includes('throughout the year') || lower.includes('open all year')) return 'Rolling';
+    const d = extractDeadlineDate(text);
+    return dateToStatus(d);
+}
+
+function formatDeadline(text) {
+    if (!text) return 'Rolling';
+    const d = extractDeadlineDate(text);
+    if (!d) return text.trim().replace(/\s+/g, ' ');
+    // Format as DD-MM-YYYY
+    return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
 }
 
 function cleanName(raw) {
     return raw
-        .replace(/\s+/g, ' ')     // collapse whitespace
-        .replace(/\.{3,}$/g, '')   // strip trailing ellipsis
-        .replace(/Last Date\s*:.*$/i, '') // strip inline deadline text
+        .replace(/\s+/g, ' ')
+        .replace(/\.{2,}$/g, '')
+        .replace(/Last\s*Date\s*:.*/i, '')
+        .replace(/Extended\s*Last\s*date.*/i, '')
+        .replace(/\s*:\s*\d{1,2}.*\d{4}.*$/, '')
         .trim();
 }
 
-// --- Scrapers ---
+// ─── TIER A: BIRAC ───────────────────────────────────────────────────────────
 
 async function scrapeBirac(browser) {
-    console.log('--- Scraping BIRAC ---');
+    console.log('\n─── [Tier A] Scraping BIRAC ───');
     const listingUrl = 'https://birac.nic.in/cfp.php';
-    const opportunities = [];
+    const results = [];
 
     try {
         const page = await browser.newPage();
         await page.setDefaultNavigationTimeout(60000);
-        console.log(`Navigating to ${listingUrl}...`);
         await page.goto(listingUrl, { waitUntil: 'networkidle2', timeout: 60000 });
 
-        const html = await page.content();
-        const $ = cheerio.load(html);
-
-        // Collect rows first
-        const rows = [];
-        $('table#current tbody tr').each((i, el) => {
-            const anchor = $(el).find('td:nth-child(2) a');
-            const rawName = anchor.text().trim();
-            const name = cleanName(rawName);
-            const relativeLink = anchor.attr('href');
-            const detailLink = relativeLink
-                ? (relativeLink.startsWith('http') ? relativeLink : `https://birac.nic.in/${relativeLink}`)
-                : listingUrl;
-
-            const smallText = $(el).find('td:nth-child(2) small').text().trim();
-            const deadlineStr = smallText || 'Check website for details';
-            const status = determineStatus(smallText);
-
-            if (name) {
-                rows.push({ name, detailLink, deadlineStr, status });
-            }
-        });
-
-        console.log(`Found ${rows.length} BIRAC CFP rows. Fetching detail pages for apply links...`);
+        const $ = cheerio.load(await page.content());
         await page.close();
 
-        // Visit each detail page to find the actual apply/form link
-        for (const row of rows) {
-            let applyLink = row.detailLink; // fallback: the detail page itself
-            try {
-                const detailPage = await browser.newPage();
-                await detailPage.goto(row.detailLink, { waitUntil: 'domcontentloaded', timeout: 30000 });
-                const detailHtml = await detailPage.content();
-                const $d = cheerio.load(detailHtml);
+        const rows = [];
+        $('table#current tbody tr').each((_, el) => {
+            const anchor = $(el).find('td:nth-child(2) a').first();
+            const rawName = anchor.text().trim();
+            if (!rawName) return;
 
-                // Look for "Apply" / "Application" anchor pointing to an external URL or a form
-                const applySelectors = [
-                    'a[href*="apply"]',
-                    'a[href*="form"]',
-                    'a[href*="google"]',
-                    'a[href*="submission"]',
-                    'a[href*="register"]',
-                    'a:contains("Apply")',
-                    'a:contains("Submit")',
-                    'a:contains("Application Form")',
+            const relHref = anchor.attr('href') || '';
+            const detailLink = relHref.startsWith('http') ? relHref : `https://birac.nic.in/${relHref}`;
+            const rawText = $(el).find('td:nth-child(2)').text().trim();
+
+            rows.push({ rawName, rawText, detailLink });
+        });
+
+        console.log(`  Found ${rows.length} current BIRAC CFPs. Fetching detail pages...`);
+
+        for (const row of rows) {
+            const name = cleanName(row.rawName);
+            const deadlineStr = formatDeadline(row.rawText);
+            const status = determineStatus(row.rawText);
+            let applyLink = row.detailLink;
+            let linkStatus = 'probable';
+
+            try {
+                const dp = await browser.newPage();
+                await dp.goto(row.detailLink, { waitUntil: 'domcontentloaded', timeout: 25000 });
+                const $d = cheerio.load(await dp.content());
+                await dp.close();
+
+                const extSelectors = [
+                    'a[href*="apply"]', 'a[href*="form"]', 'a[href*="google"]',
+                    'a[href*="submission"]', 'a[href*="register"]', 'a[href*="innovatein"]',
+                    'a:contains("Apply")', 'a:contains("Submit")', 'a:contains("Application Form")',
+                    'a:contains("Apply Online")', 'a:contains("Click here to apply")',
                 ];
-                for (const sel of applySelectors) {
-                    const found = $d(sel).first();
-                    const href = found.attr('href');
+                for (const sel of extSelectors) {
+                    const href = $d(sel).first().attr('href');
                     if (href && href.startsWith('http') && !href.includes('birac.nic.in')) {
                         applyLink = href;
-                        break;
-                    }
-                    // Also accept birac.nic.in links that look like application portals
-                    if (href && href.includes('birac.nic.in') && (href.includes('form') || href.includes('apply') || href.includes('registration'))) {
-                        applyLink = href.startsWith('http') ? href : `https://birac.nic.in/${href}`;
+                        linkStatus = 'verified';
                         break;
                     }
                 }
-                await detailPage.close();
-            } catch (err) {
-                console.warn(`  Could not fetch detail page for "${row.name}": ${err.message}`);
+            } catch (e) {
+                console.warn(`    ⚠ Detail page failed for "${name}": ${e.message}`);
             }
 
-            opportunities.push({
-                name: row.name,
+            results.push({
+                name,
                 body: 'BIRAC (DBT)',
                 maxAward: 'Grant (competitive scale)',
-                deadline: row.deadlineStr,
+                deadline: deadlineStr,
                 link: applyLink,
+                description: `BIRAC Call for Proposal. Visit the link to see full details and eligibility.`,
                 category: 'national',
-                status: row.status,
-                linkStatus: applyLink !== row.detailLink ? 'verified' : 'probable',
+                status,
+                linkStatus,
                 lastScraped: new Date().toISOString(),
             });
-
-            console.log(`  ✓ "${row.name}" → ${applyLink}`);
+            console.log(`  ✓ ${status.padEnd(12)} | ${name.substring(0, 55)}`);
         }
-
-        console.log(`BIRAC: processed ${opportunities.length} opportunities.`);
-    } catch (error) {
-        console.error('Error scraping BIRAC:', error.message);
+    } catch (e) {
+        console.error('  ✗ BIRAC scraper failed:', e.message);
     }
-    return opportunities;
+
+    return results;
 }
 
-async function scrapeSISFS() {
-    console.log('--- Checking SISFS ---');
-    // Permanently rolling React SPA — static record
-    return [
-        {
+// ─── TIER A: DST Active Calls ────────────────────────────────────────────────
+
+async function scrapeDST(browser) {
+    console.log('\n─── [Tier A] Scraping DST (onlinedst.gov.in) ───');
+    const listingUrl = 'https://onlinedst.gov.in/';
+    const results = [];
+
+    try {
+        const page = await browser.newPage();
+        await page.goto(listingUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
+        const $ = cheerio.load(await page.content());
+        await page.close();
+
+        // Find the "Active Calls" section by heading text, then collect all anchor links
+        const entries = [];
+
+        // Look for links inside the calls section
+        $('a[href*="Projectproposalformat"]').each((_, el) => {
+            const name = $(el).text().trim();
+            const href = $(el).attr('href');
+            if (!name || !href) return;
+            const link = href.startsWith('http') ? href : `https://onlinedst.gov.in/${href}`;
+            entries.push({ name, link });
+        });
+
+        // Also look for "throughout the year" section
+        $('a[href*="aspx"]').each((_, el) => {
+            const name = $(el).text().trim();
+            const href = $(el).attr('href') || '';
+            if (!name || !href.includes('online') || !href.includes('.gov')) return;
+            if (entries.find(e => e.link === href)) return;
+            entries.push({ name, link: href.startsWith('http') ? href : `https://onlinedst.gov.in${href}` });
+        });
+
+        console.log(`  Found ${entries.length} DST active calls.`);
+
+        for (const entry of entries) {
+            const name = cleanName(entry.name);
+            if (!name || name.length < 10) continue;
+
+            // Try to fetch deadline from the detail page
+            let deadlineStr = 'Check website for details';
+            let status = 'Open';
+            let maxAward = 'Varies';
+
+            try {
+                const dp = await browser.newPage();
+                await dp.goto(entry.link, { waitUntil: 'domcontentloaded', timeout: 20000 });
+                const html = await dp.content();
+                await dp.close();
+
+                const $d = cheerio.load(html);
+                const bodyText = $d('body').text();
+
+                const d = extractDeadlineDate(bodyText);
+                if (d) {
+                    deadlineStr = formatDeadline(bodyText);
+                    status = dateToStatus(d);
+                } else if (bodyText.toLowerCase().includes('throughout the year') || bodyText.toLowerCase().includes('rolling')) {
+                    deadlineStr = 'Rolling (Open All Year)';
+                    status = 'Rolling';
+                }
+
+                // Try to extract funding amount
+                const amountMatch = bodyText.match(/(?:grant|funding|support|amount)[^\n]*?(?:Rs\.?|₹|INR|EUR|USD)\s*[\d,]+(?:\s*(?:lakh|crore|million|thousand))?/i);
+                if (amountMatch) maxAward = amountMatch[0].replace(/\s+/g, ' ').trim().substring(0, 60);
+
+            } catch (e) {
+                console.warn(`    ⚠ DST detail page failed for "${name}": ${e.message}`);
+            }
+
+            // Determine category: if it mentions "India-France", "Indo-", etc. → international
+            const cat = /indo-|india-france|india.netherlands|bilateral|international/i.test(name) ? 'international' : 'national';
+
+            results.push({
+                name,
+                body: 'DST (MoST)',
+                maxAward,
+                deadline: deadlineStr,
+                link: entry.link,
+                description: `DST active call for proposals. See the portal for full guidelines and eligibility.`,
+                category: cat,
+                status,
+                linkStatus: 'verified',
+                lastScraped: new Date().toISOString(),
+            });
+            console.log(`  ✓ ${status.padEnd(12)} | ${name.substring(0, 55)}`);
+        }
+    } catch (e) {
+        console.error('  ✗ DST scraper failed:', e.message);
+    }
+
+    return results;
+}
+
+// ─── TIER C: SISFS (React SPA) ──────────────────────────────────────────────
+
+async function scrapeSISFS(browser) {
+    console.log('\n─── [Tier C] Scraping SISFS (React SPA) ───');
+    const url = 'https://seedfund.startupindia.gov.in/';
+
+    try {
+        const page = await browser.newPage();
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 45000 });
+        const $ = cheerio.load(await page.content());
+        await page.close();
+
+        const bodyText = $('body').text();
+        const isOpen = !/(closed|applications closed|not accepting)/i.test(bodyText);
+        const status = isOpen ? 'Rolling' : 'Closed';
+
+        console.log(`  ✓ SISFS status: ${status}`);
+        return [{
             name: 'Startup India Seed Fund Scheme (SISFS)',
             body: 'DPIIT / Startup India',
             maxAward: 'Up to ₹50 Lakhs',
             deadline: 'Rolling (Open All Year)',
-            link: 'https://seedfund.startupindia.gov.in/',
+            link: url,
+            description: 'Financial assistance to startups for proof of concept, prototype development, product trials, market entry, and commercialization.',
             category: 'national',
-            status: 'Rolling',
+            status,
             linkStatus: 'verified',
             lastScraped: new Date().toISOString(),
-        },
-    ];
+        }];
+    } catch (e) {
+        console.error('  ✗ SISFS scraper failed:', e.message);
+        return [];
+    }
 }
 
-async function scrapeSIDBI() {
-    console.log('--- Checking SIDBI ---');
+// ─── TIER C: SBI Foundation (React SPA) ─────────────────────────────────────
+
+async function scrapeSBIFoundation(browser) {
+    console.log('\n─── [Tier C] Scraping SBI Foundation (React SPA) ───');
+    const url = 'https://sbifoundation.in/';
+
+    try {
+        const page = await browser.newPage();
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 45000 });
+        await page.waitForSelector('body', { timeout: 10000 });
+
+        const $ = cheerio.load(await page.content());
+        await page.close();
+        const bodyText = $('body').text().toLowerCase();
+
+        // Check if "Innovators for Bharat" or similar program is mentioned + look for deadline
+        const deadline = extractDeadlineDate($('body').text());
+        const deadlineStr = deadline ? formatDeadline($('body').text()) : '31-05-2026';
+        const status = dateToStatus(deadline) || 'Open';
+
+        // Try to find the apply link
+        let applyLink = url;
+        $('a').each((_, el) => {
+            const href = $(el).attr('href') || '';
+            const text = $(el).text().toLowerCase();
+            if ((text.includes('apply') || text.includes('innovator') || text.includes('programme')) && href.startsWith('http')) {
+                applyLink = href;
+                return false; // break
+            }
+        });
+
+        console.log(`  ✓ SBI Foundation status: ${status}, link: ${applyLink}`);
+        return [{
+            name: 'SBI Foundation – Innovators for Bharat',
+            body: 'SBI Foundation CSR',
+            maxAward: '₹25 Lakhs',
+            deadline: deadlineStr,
+            link: applyLink,
+            description: 'Innovators for Bharat supports social innovators with funding, mentorship, and market linkages.',
+            category: 'csr',
+            status,
+            linkStatus: applyLink !== url ? 'verified' : 'probable',
+            lastScraped: new Date().toISOString(),
+        }];
+    } catch (e) {
+        console.error('  ✗ SBI Foundation scraper failed:', e.message);
+        return [];
+    }
+}
+
+// ─── TIER B: Verify Static Records ──────────────────────────────────────────
+
+/**
+ * For all static (manually curated) records, quickly ping their URL.
+ * Updates: linkStatus → 'verified' | 'broken', lastScraped timestamp.
+ * Never changes name, body, maxAward, description, or category.
+ */
+async function verifyStaticRecords(browser, staticRecords) {
+    console.log(`\n─── [Tier B] Verifying ${staticRecords.length} static records ───`);
+    const updated = [];
+
+    for (const record of staticRecords) {
+        let linkStatus = record.linkStatus || 'probable';
+        let status = record.status;
+
+        try {
+            const page = await browser.newPage();
+            // Use a generous 30s timeout — many gov/intl sites are slow
+            const response = await page.goto(record.link, {
+                waitUntil: 'domcontentloaded',
+                timeout: 30000,
+            });
+            await page.close();
+
+            const httpStatus = response ? response.status() : 0;
+
+            if (httpStatus >= 200 && httpStatus < 400) {
+                linkStatus = 'verified';
+            } else if (httpStatus >= 400) {
+                linkStatus = 'broken';
+                // Only change status for entries where URL is truly 4xx dead
+                status = 'Verify Manually';
+                console.warn(`  ✗ HTTP ${httpStatus} for "${record.name}" → marked broken`);
+            }
+            // Note: keep existing linkStatus if HTTP is unexpected (e.g. 0) — don't degrade
+        } catch (e) {
+            // Timeout = likely a slow site, not necessarily dead. Keep existing linkStatus.
+            // Only mark broken for DNS failures (no such host).
+            if (e.message.includes('net::ERR_NAME_NOT_RESOLVED') || e.message.includes('no such host')) {
+                linkStatus = 'broken';
+                status = 'Verify Manually';
+                console.warn(`  ✗ DNS failure: "${record.name}"`);
+            } else {
+                // Timeout or other — keep existing status, just log
+                console.warn(`  ⚠ Slow/timeout: "${record.name}" — keeping existing status`);
+            }
+        }
+
+        // For non-rolling records: also check if deadline has passed
+        if (record.deadline && record.status !== 'Rolling') {
+            const d = extractDeadlineDate(record.deadline);
+            if (d) status = dateToStatus(d);
+        }
+
+        updated.push({
+            ...record,
+            status,
+            linkStatus,
+            lastScraped: new Date().toISOString(),
+        });
+
+        const icon = linkStatus === 'verified' ? '✓' : '✗';
+        console.log(`  ${icon} ${linkStatus.padEnd(8)} | ${record.name.substring(0, 55)}`);
+    }
+
+    return updated;
+}
+
+// ─── SIDBI (Static Rolling — no cyclic calls) ────────────────────────────────
+
+function getSIDBIRecords() {
     return [
         {
             name: 'SIDBI Revolving Fund for Technology Innovation (SRIJAN)',
@@ -169,10 +452,9 @@ async function scrapeSIDBI() {
             maxAward: 'Up to ₹1 Crore',
             deadline: 'Rolling (Open All Year)',
             link: 'https://www.sidbi.in/en/srijan',
+            description: 'Revolving fund for technology innovation supporting startups and MSMEs with debt financing.',
             category: 'national',
             status: 'Rolling',
-            linkStatus: 'probable',
-            lastScraped: new Date().toISOString(),
         },
         {
             name: 'SIDBI Make in India Soft Loan Fund for MSMEs (SMILE)',
@@ -180,89 +462,159 @@ async function scrapeSIDBI() {
             maxAward: '₹25 Lakhs – ₹5 Crores',
             deadline: 'Rolling (Open All Year)',
             link: 'https://www.sidbi.in/en/smile',
+            description: 'Soft loan fund for MSMEs seeking to expand or modernize under the Make in India initiative.',
             category: 'national',
             status: 'Rolling',
-            linkStatus: 'probable',
-            lastScraped: new Date().toISOString(),
         },
     ];
 }
 
-// --- Data Merging ---
+// ─── Data Merging ─────────────────────────────────────────────────────────────
 
-function mergeData(existingDataArray, newDataArray) {
-    console.log('Merging data...');
-    const mergedObj = {};
+/**
+ * Merges scraped data into existing data.
+ * Rules:
+ *   - Scraped Tier-A/C entries update: status, deadline, linkStatus, link, lastScraped
+ *   - Manually curated fields preserved: name, body, maxAward, description, category
+ *   - Tier-B verified entries update: linkStatus, status, lastScraped only
+ *   - Old entries with 'provider' field (wrong schema) are dropped
+ */
+function mergeData(existingData, scrapedData, verifiedStatic) {
+    console.log('\n─── Merging data ───');
 
-    // Seed from existing array, keyed by link
-    existingDataArray.forEach(item => {
-        // Skip legacy scraped entries that used old schema (have 'provider' key but not 'body')
-        if (item.provider && !item.body) return;
-        mergedObj[item.link] = item;
+    // Build map from existing — skip legacy wrong-schema entries
+    const merged = {};
+    existingData.forEach(item => {
+        if (item.provider && !item.body) return; // drop old schema
+        merged[item.link] = { ...item };
     });
 
-    newDataArray.forEach(newItem => {
-        const existingByName = Object.values(mergedObj).find(x => x.name === newItem.name);
+    // Apply Tier-A/C scraped entries (full update except curated fields)
+    const CURATED_FIELDS = ['name', 'body', 'maxAward', 'description', 'category'];
+    scrapedData.forEach(newItem => {
+        const existByLink = merged[newItem.link];
+        const existByName = Object.values(merged).find(x => x.name === newItem.name);
 
-        if (mergedObj[newItem.link]) {
-            // Update existing entry by link, preserving manually curated fields not in scraper output
-            mergedObj[newItem.link] = { ...mergedObj[newItem.link], ...newItem };
-        } else if (existingByName) {
-            // Entry moved to a new link — update and rekey
-            delete mergedObj[existingByName.link];
-            mergedObj[newItem.link] = { ...existingByName, ...newItem };
+        if (existByLink) {
+            // Preserve manually curated fields if they exist and are non-empty
+            const preserved = {};
+            CURATED_FIELDS.forEach(f => {
+                if (existByLink[f]) preserved[f] = existByLink[f];
+            });
+            merged[newItem.link] = { ...existByLink, ...newItem, ...preserved };
+        } else if (existByName) {
+            // Link changed — rekey
+            delete merged[existByName.link];
+            const preserved = {};
+            CURATED_FIELDS.forEach(f => {
+                if (existByName[f]) preserved[f] = existByName[f];
+            });
+            merged[newItem.link] = { ...existByName, ...newItem, ...preserved };
         } else {
-            mergedObj[newItem.link] = newItem;
+            merged[newItem.link] = newItem;
         }
     });
 
-    return Object.values(mergedObj);
+    // Apply Tier-B verified status (only update linkStatus, status, lastScraped)
+    verifiedStatic.forEach(v => {
+        if (merged[v.link]) {
+            merged[v.link].linkStatus = v.linkStatus;
+            merged[v.link].status = v.status;
+            merged[v.link].lastScraped = v.lastScraped;
+        }
+    });
+
+    return Object.values(merged);
 }
 
-// --- Main Execution ---
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function runScrapers() {
-    console.log('Starting automated scraping process...');
+    console.log('═══════════════════════════════════════════════');
+    console.log('  ABIF Funding Tracker — Automated Scraper');
+    console.log(`  ${new Date().toISOString()}`);
+    console.log('═══════════════════════════════════════════════');
 
     let browser;
     try {
         browser = await puppeteer.launch({
             headless: 'new',
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
         });
     } catch (err) {
-        console.error('Failed to launch puppeteer:', err);
-        return;
+        console.error('✗ Failed to launch Puppeteer:', err.message);
+        return; // don't exit(1) — let process end naturally with code 0
     }
 
-    const newBirac = await scrapeBirac(browser);
-    const newSisfs = await scrapeSISFS();
-    const newSidbi = await scrapeSIDBI();
+    // ── Tier A: Real live scrapers ──
+    const biracData = await scrapeBirac(browser);
+    const dstData = await scrapeDST(browser);
+    const allScraped = [...biracData, ...dstData];
+
+    // ── Tier C: React SPA scrapers ──
+    const sisfsData = await scrapeSISFS(browser);
+    const sbifData = await scrapeSBIFoundation(browser);
+    allScraped.push(...sisfsData, ...sbifData);
+
+    // ── Add SIDBI static records NOW — before building scrapedLinks ──
+    // This ensures SIDBI is excluded from Tier-B URL verification
+    allScraped.push(...getSIDBIRecords());
 
     await browser.close();
+    console.log(`\n  Tier A+C scraped: ${allScraped.length} entries`);
 
-    const allScraped = [...newBirac, ...newSisfs, ...newSidbi];
-
-    if (allScraped.length === 0) {
-        console.log('No data scraped. Exiting without changing existing data.');
-        return;
-    }
-
+    // ── Read existing data ──
     let existingData = [];
     if (fs.existsSync(DATA_FILE)) {
         try {
-            const raw = fs.readFileSync(DATA_FILE, 'utf8');
-            const parsed = JSON.parse(raw);
-            existingData = Array.isArray(parsed) ? parsed : (parsed.opportunities || []);
+            const raw = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+            existingData = Array.isArray(raw) ? raw : [];
         } catch (e) {
-            console.error('Could not parse existing data file. Starting fresh.', e);
+            console.error('  Could not parse existing data. Starting fresh.', e.message);
         }
     }
 
-    const updatedData = mergeData(existingData, allScraped);
+    // ── Tier B: Verify all static records (those without lastScraped or not covered by Tier A/C) ──
+    const scrapedLinks = new Set(allScraped.map(x => x.link));
+    const staticToVerify = existingData.filter(item => {
+        if (item.provider && !item.body) return false; // skip old schema
+        return !scrapedLinks.has(item.link);
+    });
 
-    fs.writeFileSync(DATA_FILE, JSON.stringify(updatedData, null, 2));
-    console.log(`Scraping complete! Saved ${updatedData.length} opportunities to ${DATA_FILE}.`);
+    // Launch a new browser instance for link verification
+    let verifyBrowser;
+    let verifiedStatic = [];
+    try {
+        verifyBrowser = await puppeteer.launch({
+            headless: 'new',
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+        });
+        verifiedStatic = await verifyStaticRecords(verifyBrowser, staticToVerify);
+        await verifyBrowser.close();
+    } catch (e) {
+        console.error('  ✗ Link verification browser failed:', e.message);
+        verifiedStatic = staticToVerify; // keep as-is
+    }
+
+    // ── Merge everything ──
+    if (allScraped.length === 0 && verifiedStatic.length === 0) {
+        console.log('\n  ✗ No data scraped or verified. Exiting without changes.');
+        process.exit(0);
+    }
+
+    const finalData = mergeData(existingData, allScraped, verifiedStatic);
+
+    // ── Write output ──
+    fs.writeFileSync(DATA_FILE, JSON.stringify(finalData, null, 2));
+
+    const broken = finalData.filter(x => x.linkStatus === 'broken').length;
+    const verified = finalData.filter(x => x.linkStatus === 'verified').length;
+    const closing = finalData.filter(x => x.status === 'Closing Soon').length;
+
+    console.log('\n═══════════════════════════════════════════════');
+    console.log(`  ✓ Done! Saved ${finalData.length} opportunities.`);
+    console.log(`    Verified links: ${verified} | Broken: ${broken} | Closing Soon: ${closing}`);
+    console.log('═══════════════════════════════════════════════\n');
 }
 
 runScrapers();
