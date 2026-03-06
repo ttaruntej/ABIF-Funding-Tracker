@@ -213,25 +213,31 @@ const Dashboard = () => {
                 </div>
             )}
 
-            {/* ── Refresh overlay ───────────────────────────────── */}
+            {/* ── Refresh overlay (Toast styling) ────────────────── */}
             {isRefreshing && (
                 <div className="refresh-overlay">
-                    <div className="refresh-modal animate-modal">
+                    <div className="refresh-toast animate-toast">
                         {refreshSuccess ? (
-                            <div className="success-state animate-success">
-                                <div className="success-icon">✓</div>
-                                <h2>Dashboard Updated!</h2>
-                                <p style={{ color: 'var(--secondary)' }}>Successfully synced latest data.</p>
+                            <div className="toast-content animate-success">
+                                <div className="success-icon-small">✓</div>
+                                <div className="toast-text">
+                                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--secondary)' }}>Dashboard Updated!</h3>
+                                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-dim)' }}>Successfully synced latest data.</p>
+                                </div>
                             </div>
                         ) : (
                             <>
-                                <div className="spinner"></div>
-                                <h2>Updating Dashboard</h2>
-                                <p>Fetching latest data from the nightly automated scraper...</p>
-                                <div className="countdown-container">
+                                <div className="toast-content">
+                                    <div className="spinner-small"></div>
+                                    <div className="toast-text">
+                                        <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-main)' }}>Updating Dashboard...</h3>
+                                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-dim)' }}>Fetching latest data</p>
+                                    </div>
+                                    <span className="timer-text-small">{countdown}s</span>
+                                </div>
+                                <div className="countdown-container-small">
                                     <div className="countdown-bar" style={{ width: `${(3 - countdown) / 3 * 100}%`, transition: 'width 1s linear' }}></div>
                                 </div>
-                                <span className="timer-text">{countdown}s</span>
                             </>
                         )}
                     </div>
