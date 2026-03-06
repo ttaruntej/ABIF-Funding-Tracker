@@ -308,7 +308,7 @@
     "linkStatus": "verified",
     "provider": "DPIIT",
     "amount": "Up to ₹50 Lakhs",
-    "lastScraped": "2026-03-06T11:09:29.254Z"
+    "lastScraped": "2026-03-06T11:13:23.586Z"
   },
   {
     "name": "BIRAC Announces Call for under Proposal Product Commercialization Program Fund...",
@@ -318,7 +318,7 @@
     "link": "https://birac.nic.in/cfp_view.php?id=117&scheme_type=29",
     "category": "National",
     "status": "Rolling",
-    "lastScraped": "2026-03-06T11:09:29.242Z"
+    "lastScraped": "2026-03-06T11:13:23.573Z"
   },
   {
     "name": "DBT-BIRAC Joint Call for Proposals on ‘Bio AI’ for Fostering High Performance Biomanufacturing under BioE3 Policy Last Date :30th June,2026...",
@@ -328,6 +328,26 @@
     "link": "https://birac.nic.in/cfp_view.php?id=114&scheme_type=46",
     "category": "National",
     "status": "Open",
-    "lastScraped": "2026-03-06T11:09:29.243Z"
+    "lastScraped": "2026-03-06T11:13:23.574Z"
+  },
+  {
+    "name": "SIDBI Revolving Fund for Technology Innovation (SRIJAN)",
+    "provider": "SIDBI",
+    "amount": "Up to ₹1 Crore",
+    "deadline": "Rolling (Open All Year)",
+    "link": "https://www.sidbi.in/en/srijan",
+    "category": "National",
+    "status": "Rolling",
+    "lastScraped": "2026-03-06T11:13:23.587Z"
+  },
+  {
+    "name": "SIDBI Make in India Soft Loan Fund for MSMEs (SMILE)",
+    "provider": "SIDBI",
+    "amount": "₹25 Lakhs to ₹5 Crores",
+    "deadline": "Rolling (Open All Year)",
+    "link": "https://www.sidbi.in/en/smile",
+    "category": "National",
+    "status": "Rolling",
+    "lastScraped": "2026-03-06T11:13:23.587Z"
   }
 ]

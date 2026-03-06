@@ -102,6 +102,33 @@ async function scrapeSISFS() {
     ];
 }
 
+async function scrapeSIDBI() {
+    console.log('--- Checking SIDBI ---');
+    // SIDBI's relevant startup/MSME funds are continuous/rolling schemes
+    return [
+        {
+            name: "SIDBI Revolving Fund for Technology Innovation (SRIJAN)",
+            provider: "SIDBI",
+            amount: "Up to ₹1 Crore",
+            deadline: "Rolling (Open All Year)",
+            link: "https://www.sidbi.in/en/srijan",
+            category: "National",
+            status: "Rolling",
+            lastScraped: new Date().toISOString()
+        },
+        {
+            name: "SIDBI Make in India Soft Loan Fund for MSMEs (SMILE)",
+            provider: "SIDBI",
+            amount: "₹25 Lakhs to ₹5 Crores",
+            deadline: "Rolling (Open All Year)",
+            link: "https://www.sidbi.in/en/smile",
+            category: "National",
+            status: "Rolling",
+            lastScraped: new Date().toISOString()
+        }
+    ];
+}
+
 // --- Data Merging ---
 
 function mergeData(existingDataArray, newDataArray) {
@@ -144,10 +171,11 @@ async function runScrapers() {
 
     const newBirac = await scrapeBirac(browser);
     const newSisfs = await scrapeSISFS();
+    const newSidbi = await scrapeSIDBI();
 
     await browser.close();
 
-    const allScraped = [...newBirac, ...newSisfs];
+    const allScraped = [...newBirac, ...newSisfs, ...newSidbi];
 
     if (allScraped.length === 0) {
         console.log('No data scraped. Exiting without changing existing data.');
