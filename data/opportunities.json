@@ -1,20 +1,263 @@
 [
   {
-    "name": "Bio AI for biomanufacturing",
+    "name": "Bio AI for Biomanufacturing",
     "body": "DBT-BIRAC Joint Call",
-    "status": "Open",
-    "maxAward": "\u20b910 Crores+",
+    "maxAward": "₹10 Crores+",
     "deadline": "30-06-2026",
     "link": "https://birac.nic.in/cfp.php",
-    "description": "Fostering High Performance Biomanufacturing under BioE3 Policy."
+    "description": "Fostering High Performance Biomanufacturing under the BioE3 Policy. Supports AI-led bioengineering solutions.",
+    "status": "Open"
   },
   {
     "name": "India-France AI Call",
     "body": "DST & ANR",
-    "status": "Open",
-    "maxAward": "\u20ac500,000+",
+    "maxAward": "€500,000+",
     "deadline": "20-04-2026",
     "link": "https://onlinedst.gov.in/",
-    "description": "Joint call for proposals in Applied Mathematics and Artificial Intelligence."
+    "description": "Joint call for proposals in Applied Mathematics and Artificial Intelligence between India and France.",
+    "status": "Open"
+  },
+  {
+    "name": "i-TBI (2025)",
+    "body": "DST / NIDHI",
+    "maxAward": "₹3 Crores",
+    "deadline": "Rolling",
+    "link": "https://nidhi.dst.gov.in/",
+    "description": "NIDHI i-TBI scheme funds Technology Business Incubators to support deep-tech and science-based startups.",
+    "status": "Rolling"
+  },
+  {
+    "name": "SAMRIDH Cohort 3",
+    "body": "MeitY Startup Hub",
+    "maxAward": "₹40 Lakhs",
+    "deadline": "TBA 2026",
+    "link": "https://www.msh.gov.in/samridh",
+    "description": "Scaling and Accelerating MSME and Rural Innovation for Digital and Hardware Startups. Cohort 3 expected in 2026.",
+    "status": "Rolling"
+  },
+  {
+    "name": "BIRAC BioNEST",
+    "body": "BIRAC",
+    "maxAward": "₹50 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://birac.nic.in/bionest.php",
+    "description": "Bio Incubators Nurturing Entrepreneurship for Scaling Technologies — BIRAC's flagship bioincubation scheme.",
+    "status": "Rolling"
+  },
+  {
+    "name": "Startup India SISFS",
+    "body": "Startup India",
+    "maxAward": "₹20 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://www.startupindia.gov.in/",
+    "description": "Startup India Seed Fund Scheme: financial assistance for proof of concept, prototype and market entry.",
+    "status": "Rolling"
+  },
+  {
+    "name": "PRISM",
+    "body": "DSIR",
+    "maxAward": "₹2 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://www.dsir.gov.in/prism-scheme",
+    "description": "Promoting Innovations in Individuals, Startups & MSMEs — grassroots innovation scheme by DSIR.",
+    "status": "Rolling"
+  },
+  {
+    "name": "NEAT 3.0",
+    "body": "AICTE / MoE",
+    "maxAward": "₹10 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://neat.aicte-india.org/",
+    "description": "National Educational Alliance for Technology — MoE's EdTech platform connecting solutions with learners.",
+    "status": "Rolling"
+  },
+  {
+    "name": "TIDE 2.0",
+    "body": "MeitY",
+    "maxAward": "₹75 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://tide20.meity.gov.in/",
+    "description": "Technology Incubation and Development of Entrepreneurs — MeitY ICT incubation programme.",
+    "status": "Rolling"
+  },
+  {
+    "name": "NIDHI-TBI",
+    "body": "DST (MoST)",
+    "maxAward": "₹10 Crores",
+    "deadline": "Rolling",
+    "link": "https://nidhi.dst.gov.in/nidhi-tbi",
+    "description": "National Initiative for Developing and Harnessing Innovations — TBI grant for institutional incubators.",
+    "status": "Rolling"
+  },
+  {
+    "name": "NIDHI-iTBI (Inclusive-TBI)",
+    "body": "DST (MoST)",
+    "maxAward": "₹5 Crores",
+    "deadline": "Rolling",
+    "link": "https://nidhi.dst.gov.in/",
+    "description": "Inclusive TBI programme focusing on Tier-2/3 cities and underserved regions.",
+    "status": "Rolling"
+  },
+  {
+    "name": "NIDHI-EIR",
+    "body": "DST (via NSTEDB)",
+    "maxAward": "₹30 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://nidhi.dst.gov.in/nidhi-eir",
+    "description": "Entrepreneur In Residence fellowship for innovators to work full-time on their startup idea.",
+    "status": "Rolling"
+  },
+  {
+    "name": "Atal Incubation Centre (AIC)",
+    "body": "AIM (NITI Aayog)",
+    "maxAward": "₹10 Crores",
+    "deadline": "Rolling",
+    "link": "https://aim.gov.in/aic.php",
+    "description": "Atal Innovation Mission funds Atal Incubation Centres at institutions to incubate startups in emerging sectors.",
+    "status": "Rolling"
+  },
+  {
+    "name": "MSME Incubation Scheme",
+    "body": "Ministry of MSME",
+    "maxAward": "₹1 Crore",
+    "deadline": "Rolling",
+    "link": "https://msme.gov.in/technology-incubation",
+    "description": "Technology Incubation and Development of Enterprises scheme for business incubation support.",
+    "status": "Rolling"
+  },
+  {
+    "name": "Youth Co:Lab",
+    "body": "UNDP – Citi – AIM",
+    "maxAward": "$10,000",
+    "deadline": "TBA 2026",
+    "link": "https://www.youthcolab.org/",
+    "description": "UNDP and Citi joint initiative to accelerate youth-led social innovation and entrepreneurship in Asia-Pacific.",
+    "status": "Rolling"
+  },
+  {
+    "name": "ADB FinTech Institute",
+    "body": "Asian Development Bank",
+    "maxAward": "Varies",
+    "deadline": "Rolling",
+    "link": "https://www.adb.org/what-we-do/sectors/finance/fintech",
+    "description": "ADB's FinTech innovation programs supporting financial inclusion and digital finance startups across Asia.",
+    "status": "Rolling"
+  },
+  {
+    "name": "India Agritech Incubation Network",
+    "body": "Bill & Melinda Gates Foundation",
+    "maxAward": "₹50 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://www.gatesfoundation.org/",
+    "description": "Gates Foundation-backed agritech incubation network supporting solutions for smallholder farmers.",
+    "status": "Rolling"
+  },
+  {
+    "name": "BIRAC–Social Alpha Assistive Tech Quest",
+    "body": "Tata Trusts / BIRAC",
+    "maxAward": "₹25 Lakhs",
+    "deadline": "30-09-2026",
+    "link": "https://birac.nic.in/cfp.php",
+    "description": "Joint programme to discover and scale innovations in assistive technologies for persons with disabilities.",
+    "status": "Open"
+  },
+  {
+    "name": "GIZ–FCDO StartUpWave",
+    "body": "GIZ (Germany) & FCDO (UK)",
+    "maxAward": "€50,000",
+    "deadline": "30-06-2026",
+    "link": "https://www.giz.de/en/worldwidegiz/india.html",
+    "description": "StartUpWave supports climate and social impact startups through Indo-German development cooperation.",
+    "status": "Open"
+  },
+  {
+    "name": "UNIDO Global Cleantech Innovation Programme",
+    "body": "UNIDO",
+    "maxAward": "$50,000",
+    "deadline": "30-06-2026",
+    "link": "https://www.unido.org/cleantech",
+    "description": "UNIDO's GCIP supports cleantech SMEs and startups with mentoring, capacity building, and investor connectivity.",
+    "status": "Open"
+  },
+  {
+    "name": "Rockefeller Foundation Global Impact Incubator",
+    "body": "Rockefeller Foundation",
+    "maxAward": "$500,000",
+    "deadline": "Rolling",
+    "link": "https://www.rockefellerfoundation.org/grant-opportunities/",
+    "description": "Rockefeller Foundation supports incubators working on food, health, and energy systems globally.",
+    "status": "Rolling"
+  },
+  {
+    "name": "World Bank Group Startup Financing",
+    "body": "World Bank / IFC",
+    "maxAward": "Varies",
+    "deadline": "Rolling",
+    "link": "https://www.ifc.org/en/what-we-do/sector-expertise/disruptive-technologies-and-funds",
+    "description": "IFC Disruptive Technologies program invests in VC funds and tech-driven startups across emerging markets.",
+    "status": "Rolling"
+  },
+  {
+    "name": "Clean Energy International Incubation Centre",
+    "body": "Tata Trusts / Social Alpha",
+    "maxAward": "₹50 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://socialalpha.org/ceiic/",
+    "description": "CEIIC supports clean energy innovators through mentorship, funding, and market linkages.",
+    "status": "Rolling"
+  },
+  {
+    "name": "thingQbator",
+    "body": "NASSCOM Foundation + Cisco CSR",
+    "maxAward": "₹15 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://nasscomfoundation.org/thingqbator/",
+    "description": "IoT-focused incubator by NASSCOM Foundation and Cisco CSR supporting tech-for-good startups.",
+    "status": "Rolling"
+  },
+  {
+    "name": "Krishi Mangal",
+    "body": "Cisco CSR + Social Alpha",
+    "maxAward": "₹10 Lakhs",
+    "deadline": "Rolling",
+    "link": "https://socialalpha.org/krishi-mangal/",
+    "description": "Accelerates agritech innovations for small and marginal farmers through Social Alpha and Cisco.",
+    "status": "Rolling"
+  },
+  {
+    "name": "Lemelson Foundation ASME iShow",
+    "body": "Lemelson Foundation",
+    "maxAward": "$15,000",
+    "deadline": "31-03-2026",
+    "link": "https://ishow.asme.org/",
+    "description": "Global hardware innovation competition recognizing inventions with strong social impact potential.",
+    "status": "Closing Soon"
+  },
+  {
+    "name": "Ford Foundation – Global Grants",
+    "body": "Ford Foundation",
+    "maxAward": "$500,000",
+    "deadline": "Rolling",
+    "link": "https://www.fordfoundation.org/work/our-grants/",
+    "description": "Ford Foundation provides grants for reducing inequality through social justice and economic security initiatives.",
+    "status": "Rolling"
+  },
+  {
+    "name": "Skoll Foundation Awards",
+    "body": "Skoll Foundation",
+    "maxAward": "$1.5 Million",
+    "deadline": "01-04-2026",
+    "link": "https://skoll.org/skoll-award/",
+    "description": "Annual Skoll Award for Social Entrepreneurship recognizing and funding large-scale social entrepreneurs worldwide.",
+    "status": "Closing Soon"
+  },
+  {
+    "name": "SBI Foundation – Innovators for Bharat",
+    "body": "SBI Foundation CSR",
+    "maxAward": "₹25 Lakhs",
+    "deadline": "31-05-2026",
+    "link": "https://sbifoundation.in/",
+    "description": "Innovators for Bharat supports social innovators with funding, mentorship, and market linkages.",
+    "status": "Open"
   }
 ]
