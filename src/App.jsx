@@ -274,7 +274,7 @@ const Dashboard = () => {
                 <div className="stat-card" style={{ gridColumn: 'span 2', textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <p className="scheme-body" style={{ color: 'var(--secondary)', fontWeight: 'bold' }}>AI Research Briefing</p>
                     <p className="scheme-body" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>
-                        "Agri-tech and AI remain top priorities for DST and MeitY in 2026. Focus areas include Bio-AI, Green Hydrogen, and Inclusive Innovation. High-value grants like Bio AI (₹10Cr+) and India-France AI calls are currently open."
+                        "Current focuses span AI, Assistive Tech, and hardware. Major calls open via BIRAC & DST. Continuous rolling funding for MSMEs and startups is highly active through SIDBI (SMILE/SRIJAN) and DPIIT (SISFS) with upper limits up to ₹5 Crores."
                     </p>
                 </div>
                 <div className="stat-card">
