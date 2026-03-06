@@ -1,164 +1,177 @@
-import puppeteer from 'puppeteer';
-import * as cheerio from 'cheerio';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import * as cheerio from 'cheerio';
 
-// Define the categories to match the frontend
-const CATEGORIES = {
-    NATIONAL: 'national',
-    INTERNATIONAL: 'international',
-    STATE: 'state',
-    CSR: 'csr'
-};
+puppeteer.use(StealthPlugin());
 
-// Define status to match the frontend
-const STATUS = {
-    OPEN: 'Open',
-    CLOSING_SOON: 'Closing Soon',
-    ROLLING: 'Rolling',
-    COMING_SOON: 'Coming Soon'
-};
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Helper to determine status based on deadline
-const determineStatus = (deadlineStr) => {
-    if (!deadlineStr || deadlineStr.toLowerCase().includes('rolling') || deadlineStr.toLowerCase().includes('open all year')) {
-        return STATUS.ROLLING;
+const DATA_FILE = path.join(__dirname, '../public/data/opportunities.json');
+
+// --- Helper Functions ---
+
+function determineStatus(deadlineStr) {
+    if (!deadlineStr || deadlineStr.toLowerCase().includes('rolling') || deadlineStr.toLowerCase().includes('throughout the year')) {
+        return 'Rolling';
     }
 
-    // Attempt basic date parsing 
-    const deadlineDate = new Date(deadlineStr);
-    if (isNaN(deadlineDate.getTime())) {
-        return STATUS.OPEN; // Default if can't parse
+    const match = deadlineStr.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+    if (match) {
+        const [_, day, month, year] = match;
+        const deadlineDate = new Date(`${year}-${month}-${day}`);
+        const today = new Date();
+        const diffTime = deadlineDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) return 'Closed';
+        if (diffDays <= 7) return 'Closing Soon';
+        return 'Open';
     }
 
-    const today = new Date();
-    const diffTime = Math.abs(deadlineDate - today);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays <= 7 && deadlineDate >= today) {
-        return STATUS.CLOSING_SOON;
-    }
-
-    return STATUS.OPEN;
-};
-
-// Scraper 1: BIRAC (Mock implementation for structure, tailored to their typical layout)
-async function scrapeBirac() {
-    console.log("Starting BIRAC scrape...");
-    // Note: BIRAC often uses complex tables or PDFs, this is a generic structural example
-    const url = 'https://birac.nic.in/calls_for_proposal.php';
-    const opportunities = [];
-
-    try {
-        const browser = await puppeteer.launch({ headless: "new" });
-        const page = await browser.newPage();
-
-        // Wait for page load (adjust selector based on actual live site)
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-
-        // Example: extract links from the calls table
-        const content = await page.content();
-        const $ = cheerio.load(content);
-
-        // FAKE MOCK EXTRACTION (Since BIRAC's site structure changes, we simulate finding one)
-        // In reality, you'd use selectors like: $('.call-row').each(...)
-        const hasCalls = $('body').text().toLowerCase().includes('proposal');
-
-        if (hasCalls) {
-            opportunities.push({
-                "status": "Open",
-                "name": "BIRAC BIG - Biotechnology Ignition Grant",
-                "body": "BIRAC",
-                "description": "[Automated Source] Support for establishing and validating proof of concept for biotechnology innovations.",
-                "maxAward": "Up to ₹50 Lakhs",
-                "link": url,
-                "deadline": "Check Portal (Auto-synced)",
-                "category": CATEGORIES.NATIONAL,
-                "linkStatus": "verified"
-            });
-        }
-
-        await browser.close();
-        console.log(`BIRAC scrape completed. Found ${opportunities.length} items.`);
-        return opportunities;
-    } catch (error) {
-        console.error(`Error scraping BIRAC: ${error.message}`);
-        return []; // Return empty array on failure so it doesn't break others
-    }
+    return 'Open';
 }
 
-// Scraper 2: Startup India Seed Fund (SISFS)
-async function scrapeSISFS() {
-    console.log("Starting SISFS scrape...");
-    const url = 'https://seedfund.startupindia.gov.in/';
+
+// --- Scrapers ---
+
+async function scrapeBirac(browser) {
+    console.log('--- Scraping BIRAC ---');
+    const url = 'https://birac.nic.in/cfp.php';
     const opportunities = [];
 
     try {
-        // SISFS is generally a rolling program
-        opportunities.push({
-            "status": "Rolling",
-            "name": "Startup India Seed Fund Scheme",
-            "body": "DPIIT",
-            "description": "[Automated Source] Financial assistance to startups for proof of concept, prototype development, product trials, market entry, and commercialization.",
-            "maxAward": "Up to ₹50 Lakhs (Debt) / ₹20 Lakhs (Grant)",
-            "link": url,
-            "deadline": "Rolling (Auto-synced)",
-            "category": CATEGORIES.NATIONAL,
-            "linkStatus": "verified"
+        const page = await browser.newPage();
+        console.log(`Navigating to ${url}...`);
+        await page.goto(url, { waitUntil: 'networkidle2', timeout: 45000 });
+
+        const html = await page.content();
+        const $ = cheerio.load(html);
+
+        $('table#current tbody tr').each((i, el) => {
+            const anchor = $(el).find('td:nth-child(2) a');
+            const name = anchor.text().trim();
+            const relativeLink = anchor.attr('href');
+            const link = relativeLink ? (relativeLink.startsWith('http') ? relativeLink : `https://birac.nic.in/${relativeLink}`) : url;
+
+            const smallText = $(el).find('td:nth-child(2) small').text().trim();
+            let amountStr = "Grant matching scale";
+            let deadlineStr = smallText || "Check website for details";
+
+            const status = determineStatus(smallText);
+
+            if (name) {
+                opportunities.push({
+                    name: name,
+                    provider: 'BIRAC (DBT)',
+                    amount: amountStr,
+                    deadline: deadlineStr,
+                    link: link,
+                    category: 'National',
+                    status: status,
+                    lastScraped: new Date().toISOString()
+                });
+            }
         });
 
-        console.log(`SISFS scrape completed. Found ${opportunities.length} items.`);
-        return opportunities;
+        console.log(`Found ${opportunities.length} opportunities from BIRAC.`);
+        await page.close();
     } catch (error) {
-        console.error(`Error scraping SISFS: ${error.message}`);
-        return [];
+        console.error('Error scraping BIRAC:', error.message);
     }
+    return opportunities;
 }
 
-// Read existing data to merge or overwrite
-function mergeData(newOpportunities) {
-    const dataPath = path.join(process.cwd(), 'public', 'data', 'opportunities.json');
-    let existingData = [];
+async function scrapeSISFS() {
+    console.log('--- Checking SISFS ---');
+    // Static record since it's a permanently rolling React SPA
+    return [
+        {
+            name: "Startup India Seed Fund Scheme",
+            provider: "DPIIT",
+            amount: "Up to ₹50 Lakhs",
+            deadline: "Rolling (Open All Year)",
+            link: "https://seedfund.startupindia.gov.in/",
+            category: "National",
+            status: "Rolling",
+            lastScraped: new Date().toISOString()
+        }
+    ];
+}
 
-    if (fs.existsSync(dataPath)) {
+// --- Data Merging ---
+
+function mergeData(existingDataArray, newDataArray) {
+    console.log('Merging data...');
+    const mergedObj = {};
+
+    // Convert existing array to a map keyed by link
+    existingDataArray.forEach(item => {
+        mergedObj[item.link] = item;
+    });
+
+    newDataArray.forEach(newItem => {
+        const existingByName = Object.values(mergedObj).find(x => x.name === newItem.name);
+
+        if (mergedObj[newItem.link]) {
+            mergedObj[newItem.link] = { ...mergedObj[newItem.link], ...newItem };
+        } else if (existingByName) {
+            mergedObj[existingByName.link] = { ...existingByName, ...newItem };
+            mergedObj[existingByName.link].link = newItem.link;
+        } else {
+            mergedObj[newItem.link] = newItem;
+        }
+    });
+
+    return Object.values(mergedObj);
+}
+
+// --- Main Execution ---
+
+async function runScrapers() {
+    console.log('Starting automated scraping process...');
+
+    let browser;
+    try {
+        browser = await puppeteer.launch({ headless: "new", args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    } catch (err) {
+        console.error("Failed to launch puppeteer:", err);
+        return;
+    }
+
+    const newBirac = await scrapeBirac(browser);
+    const newSisfs = await scrapeSISFS();
+
+    await browser.close();
+
+    const allScraped = [...newBirac, ...newSisfs];
+
+    if (allScraped.length === 0) {
+        console.log('No data scraped. Exiting without changing existing data.');
+        return;
+    }
+
+    let existingData = [];
+    if (fs.existsSync(DATA_FILE)) {
         try {
-            const rawData = fs.readFileSync(dataPath, 'utf-8');
-            existingData = JSON.parse(rawData);
-            console.log(`Found ${existingData.length} existing opportunities.`);
+            const raw = fs.readFileSync(DATA_FILE, 'utf8');
+            existingData = JSON.parse(raw);
+            if (!Array.isArray(existingData)) {
+                // Backward compatibility if it was an object
+                existingData = existingData.opportunities || [];
+            }
         } catch (e) {
-            console.error("Error reading existing JSON, starting fresh.", e);
+            console.error("Could not parse existing data file. Starting fresh.", e);
         }
     }
 
-    // Advanced logic: Overwrite items with the same name, keep manual ones
-    const mergedObj = {};
+    const updatedData = mergeData(existingData, allScraped);
 
-    // First, map existing items
-    existingData.forEach(item => {
-        mergedObj[item.name] = item;
-    });
-
-    // Then, overwrite with new scraped items
-    newOpportunities.forEach(item => {
-        mergedObj[item.name] = item;
-    });
-
-    const finalArray = Object.values(mergedObj);
-
-    fs.writeFileSync(dataPath, JSON.stringify(finalArray, null, 4), 'utf-8');
-    console.log(`Successfully wrote ${finalArray.length} items to ${dataPath}`);
-}
-
-async function runScrapers() {
-    console.log("--- Starting Auto-Scraper ---");
-    const biracData = await scrapeBirac();
-    const sisfsData = await scrapeSISFS();
-
-    const allNewData = [...biracData, ...sisfsData];
-    console.log(`Total scraped items: ${allNewData.length}`);
-
-    mergeData(allNewData);
-    console.log("--- Scrape Complete ---");
+    fs.writeFileSync(DATA_FILE, JSON.stringify(updatedData, null, 2));
+    console.log(`Scraping complete! Saved ${updatedData.length} opportunities to ${DATA_FILE}.`);
 }
 
 runScrapers();
