@@ -31,28 +31,19 @@ const MONTHS = {
 /**
  * Extracts the LAST / DEADLINE date from raw text.
  * Specifically searches for "Last Date", "Last date to apply", "Extended Last date" etc.
- * Falls back to any date found if no deadline keyword is present.
+ * Never guesses the highest date on the page randomly.
  */
 function extractDeadlineDate(text) {
     if (!text) return null;
 
-    // Strategy 1: Look for "Last Date[ :−–]" followed by a date
-    const lastDateSection = text.match(/(?:last\s*date|deadline|closing\s*date|due\s*date)[^\d]*(\d{1,2}(?:st|nd|rd|th)?[-\/\s,]+(?:\d{1,2}[-\/]|[a-z]+\s*)\d{4})/i);
+    // Strategy 1: Look for "Last Date[ :−–]" or similar deadline keywords followed by a date
+    const lastDateSection = text.match(/(?:last\s*date|deadline|closing\s*date|closes\s*by|due\s*date|apply\s*by)[^\d]*(\d{1,2}(?:st|nd|rd|th)?[-\/\s,]+(?:\d{1,2}[-\/]|[a-z]+\s*)\d{4})/i);
     if (lastDateSection) {
         const d = parseSingleDate(lastDateSection[1]);
         if (d) return d;
     }
 
-    // Strategy 2: Find ALL dates in the text, return the LATEST one
-    const allDates = [...text.matchAll(/(\d{1,2}(?:st|nd|rd|th)?\s+(?:january|february|march|april|may|june|july|august|september|october|november|december),?\s+\d{4}|\d{1,2}[-\/]\d{1,2}[-\/]\d{4})/gi)]
-        .map(m => parseSingleDate(m[1]))
-        .filter(Boolean);
-
-    if (allDates.length > 0) {
-        return allDates.reduce((latest, d) => d > latest ? d : latest);
-    }
-
-    return null;
+    return null; // Fallback to Rolling instead of wildly guessing future dates
 }
 
 function parseSingleDate(str) {
@@ -183,6 +174,7 @@ async function scrapeBirac(browser) {
                 category: 'national',
                 status,
                 linkStatus,
+                dataSource: 'scraper:birac',
                 lastScraped: new Date().toISOString(),
             });
             console.log(`  ✓ ${status.padEnd(12)} | ${name.substring(0, 55)}`);
@@ -278,6 +270,7 @@ async function scrapeDST(browser) {
                 category: cat,
                 status,
                 linkStatus: 'verified',
+                dataSource: 'scraper:dst',
                 lastScraped: new Date().toISOString(),
             });
             console.log(`  ✓ ${status.padEnd(12)} | ${name.substring(0, 55)}`);
@@ -302,8 +295,10 @@ async function scrapeSISFS(browser) {
         await page.close();
 
         const bodyText = $('body').text();
-        const isOpen = !/(closed|applications closed|not accepting)/i.test(bodyText);
-        const status = isOpen ? 'Rolling' : 'Closed';
+        // More robust: Only assume closed if it specifically says 'currently not accepting' near 'applications'
+        // Avoid generic 'closed' matches for past cohorts.
+        const isHardClosed = /applications\s+are\s+(?:currently\s+)?closed/i.test(bodyText) || /not\s+accepting\s+new\s+applications/i.test(bodyText);
+        const status = isHardClosed ? 'Closed' : 'Rolling';
 
         console.log(`  ✓ SISFS status: ${status}`);
         return [{
@@ -316,6 +311,7 @@ async function scrapeSISFS(browser) {
             category: 'national',
             status,
             linkStatus: 'verified',
+            dataSource: 'scraper:sisfs',
             lastScraped: new Date().toISOString(),
         }];
     } catch (e) {
@@ -366,6 +362,7 @@ async function scrapeSBIFoundation(browser) {
             category: 'csr',
             status,
             linkStatus: applyLink !== url ? 'verified' : 'probable',
+            dataSource: 'scraper:sbif',
             lastScraped: new Date().toISOString(),
         }];
     } catch (e) {
@@ -455,6 +452,7 @@ function getSIDBIRecords() {
             description: 'Revolving fund for technology innovation supporting startups and MSMEs with debt financing.',
             category: 'national',
             status: 'Rolling',
+            dataSource: 'scraper:sidbi',
         },
         {
             name: 'SIDBI Make in India Soft Loan Fund for MSMEs (SMILE)',
@@ -465,6 +463,7 @@ function getSIDBIRecords() {
             description: 'Soft loan fund for MSMEs seeking to expand or modernize under the Make in India initiative.',
             category: 'national',
             status: 'Rolling',
+            dataSource: 'scraper:sidbi',
         },
     ];
 }
@@ -521,6 +520,18 @@ function mergeData(existingData, scrapedData, verifiedStatic) {
             merged[v.link].linkStatus = v.linkStatus;
             merged[v.link].status = v.status;
             merged[v.link].lastScraped = v.lastScraped;
+        }
+    });
+
+    // ── GHOST DATA KILLER (Strict Sync) ──
+    // If a record was historically sourced by a live scraper (e.g. scraper:birac),
+    // but the scraper ran today and didn't return it, it means the call was removed from the live site.
+    const activeScrapedLinks = new Set(scrapedData.map(x => x.link));
+    Object.values(merged).forEach(item => {
+        if (item.dataSource && item.dataSource.startsWith('scraper:') && !activeScrapedLinks.has(item.link)) {
+            // The item has vanished from the source portal.
+            item.status = 'Closed';
+            item.deadline = 'Expired / Removed from source';
         }
     });
 
@@ -597,9 +608,11 @@ async function runScrapers() {
     }
 
     // ── Merge everything ──
-    if (allScraped.length === 0 && verifiedStatic.length === 0) {
-        console.log('\n  ✗ No data scraped or verified. Exiting without changes.');
-        process.exit(0);
+    if (allScraped.length < 5) {
+        console.error(`\n  ✗ CRITICAL FAILURE: Scrapers only yielded ${allScraped.length} entries (expected 5+).`);
+        console.error('  This indicates a fundamental block (firewall, layout change, headless detection).');
+        console.error('  Failing the CI/CD run to prevent silent data rot.');
+        process.exit(1);
     }
 
     const finalData = mergeData(existingData, allScraped, verifiedStatic);
