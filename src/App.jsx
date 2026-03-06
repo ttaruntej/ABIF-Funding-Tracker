@@ -5,8 +5,11 @@ const Dashboard = () => {
     const [opportunities, setOpportunities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({ total: 0, active: 0, closingSoon: 0 });
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [countdown, setCountdown] = useState(0);
+    const [lastUpdated, setLastUpdated] = useState(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
 
-    useEffect(() => {
+    const fetchData = () => {
         fetch('/data/opportunities.json')
             .then(res => res.json())
             .then(data => {
@@ -15,12 +18,34 @@ const Dashboard = () => {
                 const closing = data.filter(o => o.status === 'Closing Soon').length;
                 setStats({ total: data.length, active, closingSoon: closing });
                 setLoading(false);
+                setIsRefreshing(false);
+                setLastUpdated(`${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
             })
             .catch(err => {
                 console.error("Failed to fetch opportunities:", err);
                 setLoading(false);
+                setIsRefreshing(false);
             });
+    }
+
+    useEffect(() => {
+        fetchData();
     }, []);
+
+    const handleRefresh = () => {
+        setIsRefreshing(true);
+        setCountdown(8);
+    };
+
+    useEffect(() => {
+        let timer;
+        if (isRefreshing && countdown > 0) {
+            timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+        } else if (isRefreshing && countdown === 0) {
+            fetchData();
+        }
+        return () => clearTimeout(timer);
+    }, [isRefreshing, countdown]);
 
     if (loading) return (
         <div style={{ backgroundColor: '#020c1b', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64ffda', fontFamily: 'Inter' }}>
@@ -30,13 +55,37 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-container animate-in">
+            {isRefreshing && (
+                <div className="refresh-overlay">
+                    <div className="refresh-modal">
+                        <div className="spinner"></div>
+                        <h2>Updating Dashboard</h2>
+                        <p>Syncing with latest funding databases...</p>
+                        <div className="countdown-container">
+                            <div className="countdown-bar" style={{ width: `${(8 - countdown) / 8 * 100}%` }}></div>
+                        </div>
+                        <span className="timer-text">{countdown}s</span>
+                    </div>
+                </div>
+            )}
+
             <header>
                 <div className="logo">
                     <h1>ABIF</h1>
                     <p style={{ color: 'var(--text-dim)', fontSize: '0.9rem' }}>Opportunities Tracker</p>
                 </div>
-                <div className="last-updated" style={{ fontSize: '0.8rem', color: 'var(--text-dim)', textAlign: 'right' }}>
-                    Last Refreshed: {new Date().toLocaleDateString()} 09:00 AM
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                    <button className="btn-refresh" onClick={handleRefresh} disabled={isRefreshing}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                        Update Dashboard
+                    </button>
+                    <div className="last-updated" style={{ fontSize: '0.8rem', color: 'var(--text-dim)', textAlign: 'right' }}>
+                        Last Refreshed: {lastUpdated}
+                    </div>
                 </div>
             </header>
 
