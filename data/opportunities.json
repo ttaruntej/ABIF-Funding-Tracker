@@ -298,56 +298,60 @@
   },
   {
     "status": "Rolling",
-    "name": "Startup India Seed Fund Scheme",
-    "body": "DPIIT",
+    "name": "Startup India Seed Fund Scheme (SISFS)",
+    "body": "DPIIT / Startup India",
     "description": "[Automated Source] Financial assistance to startups for proof of concept, prototype development, product trials, market entry, and commercialization.",
-    "maxAward": "Up to ₹50 Lakhs (Debt) / ₹20 Lakhs (Grant)",
+    "maxAward": "Up to ₹50 Lakhs",
     "link": "https://seedfund.startupindia.gov.in/",
     "deadline": "Rolling (Open All Year)",
-    "category": "National",
+    "category": "national",
     "linkStatus": "verified",
     "provider": "DPIIT",
     "amount": "Up to ₹50 Lakhs",
-    "lastScraped": "2026-03-06T13:13:33.655Z"
+    "lastScraped": "2026-03-06T17:12:54.389Z"
   },
   {
-    "name": "BIRAC Announces Call for under Proposal Product Commercialization Program Fund...",
-    "provider": "BIRAC (DBT)",
-    "amount": "Grant matching scale",
+    "name": "BIRAC Announces Call for under Proposal Product Commercialization Program Fund",
+    "body": "BIRAC (DBT)",
+    "maxAward": "Grant (competitive scale)",
     "deadline": "Call is open throughout the year",
     "link": "https://birac.nic.in/cfp_view.php?id=117&scheme_type=29",
-    "category": "National",
+    "category": "national",
     "status": "Rolling",
-    "lastScraped": "2026-03-06T13:13:33.643Z"
+    "linkStatus": "probable",
+    "lastScraped": "2026-03-06T17:12:53.011Z"
   },
   {
-    "name": "DBT-BIRAC Joint Call for Proposals on ‘Bio AI’ for Fostering High Performance Biomanufacturing under BioE3 Policy Last Date :30th June,2026...",
-    "provider": "BIRAC (DBT)",
-    "amount": "Grant matching scale",
+    "name": "DBT-BIRAC Joint Call for Proposals on ‘Bio AI’ for Fostering High Performance Biomanufacturing under BioE3 Policy",
+    "body": "BIRAC (DBT)",
+    "maxAward": "Grant (competitive scale)",
     "deadline": "Opens on 24th November 2025Last Date of Submission 30-06-2026",
     "link": "https://birac.nic.in/cfp_view.php?id=114&scheme_type=46",
-    "category": "National",
+    "category": "national",
     "status": "Open",
-    "lastScraped": "2026-03-06T13:13:33.644Z"
+    "linkStatus": "probable",
+    "lastScraped": "2026-03-06T17:12:54.389Z"
   },
   {
     "name": "SIDBI Revolving Fund for Technology Innovation (SRIJAN)",
-    "provider": "SIDBI",
-    "amount": "Up to ₹1 Crore",
+    "body": "SIDBI",
+    "maxAward": "Up to ₹1 Crore",
     "deadline": "Rolling (Open All Year)",
     "link": "https://www.sidbi.in/en/srijan",
-    "category": "National",
+    "category": "national",
     "status": "Rolling",
-    "lastScraped": "2026-03-06T13:13:33.655Z"
+    "linkStatus": "probable",
+    "lastScraped": "2026-03-06T17:12:54.389Z"
   },
   {
     "name": "SIDBI Make in India Soft Loan Fund for MSMEs (SMILE)",
-    "provider": "SIDBI",
-    "amount": "₹25 Lakhs to ₹5 Crores",
+    "body": "SIDBI",
+    "maxAward": "₹25 Lakhs – ₹5 Crores",
     "deadline": "Rolling (Open All Year)",
     "link": "https://www.sidbi.in/en/smile",
-    "category": "National",
+    "category": "national",
     "status": "Rolling",
-    "lastScraped": "2026-03-06T13:13:33.655Z"
+    "linkStatus": "probable",
+    "lastScraped": "2026-03-06T17:12:54.389Z"
   }
 ]
