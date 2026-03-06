@@ -308,7 +308,7 @@
     "linkStatus": "verified",
     "provider": "DPIIT",
     "amount": "Up to ₹50 Lakhs",
-    "lastScraped": "2026-03-06T13:13:33.655Z"
+    "lastScraped": "2026-03-06T13:20:59.452Z"
   },
   {
     "name": "BIRAC Announces Call for under Proposal Product Commercialization Program Fund...",
@@ -318,7 +318,7 @@
     "link": "https://birac.nic.in/cfp_view.php?id=117&scheme_type=29",
     "category": "National",
     "status": "Rolling",
-    "lastScraped": "2026-03-06T13:13:33.643Z"
+    "lastScraped": "2026-03-06T13:20:59.442Z"
   },
   {
     "name": "DBT-BIRAC Joint Call for Proposals on ‘Bio AI’ for Fostering High Performance Biomanufacturing under BioE3 Policy Last Date :30th June,2026...",
@@ -328,7 +328,7 @@
     "link": "https://birac.nic.in/cfp_view.php?id=114&scheme_type=46",
     "category": "National",
     "status": "Open",
-    "lastScraped": "2026-03-06T13:13:33.644Z"
+    "lastScraped": "2026-03-06T13:20:59.443Z"
   },
   {
     "name": "SIDBI Revolving Fund for Technology Innovation (SRIJAN)",
@@ -338,7 +338,7 @@
     "link": "https://www.sidbi.in/en/srijan",
     "category": "National",
     "status": "Rolling",
-    "lastScraped": "2026-03-06T13:13:33.655Z"
+    "lastScraped": "2026-03-06T13:20:59.452Z"
   },
   {
     "name": "SIDBI Make in India Soft Loan Fund for MSMEs (SMILE)",
@@ -348,6 +348,6 @@
     "link": "https://www.sidbi.in/en/smile",
     "category": "National",
     "status": "Rolling",
-    "lastScraped": "2026-03-06T13:13:33.655Z"
+    "lastScraped": "2026-03-06T13:20:59.452Z"
   }
 ]
