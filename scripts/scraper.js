@@ -16,6 +16,7 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import * as cheerio from 'cheerio';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
+import nodemailer from 'nodemailer';
 
 dotenv.config();
 
@@ -956,12 +957,82 @@ async function generateStrategicReport(data) {
     return analyzeLogic();
 }
 
+// ── Automated Email Notification ──────────────────────────────────────────────
+async function sendIncubatorReport(data) {
+    const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, ABIF_TEAM_EMAIL } = process.env;
+
+    // Require config to send email
+    if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !ABIF_TEAM_EMAIL) {
+        console.log('  ℹ Email notification skipped: SMTP credentials or ABIF_TEAM_EMAIL not fully configured in env.');
+        return;
+    }
+
+    const incubatorOpps = data.filter(x =>
+        x.targetAudience && x.targetAudience.includes('incubator') && x.status !== 'Closed'
+    );
+
+    if (incubatorOpps.length === 0) {
+        console.log('  ℹ No active incubator opportunities to email today.');
+        return;
+    }
+
+    console.log(`\n─── Preparing Email for ${incubatorOpps.length} Incubator Opportunities ───`);
+
+    const transporter = nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: Number(SMTP_PORT) || 587,
+        secure: Number(SMTP_PORT) === 465, // true for 465, false for other ports
+        auth: {
+            user: SMTP_USER,
+            pass: SMTP_PASS,
+        },
+    });
+
+    let htmlContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+            <h2 style="color: #2563eb;">ABIF Incubator Funding Update</h2>
+            <p>Wait no more! Here are the active funding opportunities relevant to incubators/accelerators updated today by your automated scraper:</p>
+            <hr style="border: 1px solid #e5e7eb; margin: 20px 0;" />
+    `;
+
+    incubatorOpps.forEach((opp, i) => {
+        htmlContent += `
+            <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #3b82f6; background-color: #f8fafc;">
+                <h3 style="margin: 0 0 10px 0; color: #1e293b;">${i + 1}. ${opp.name}</h3>
+                <p style="margin: 0 0 5px 0;"><strong>Provider:</strong> ${opp.body}</p>
+                <p style="margin: 0 0 5px 0;"><strong>Grant/Funding:</strong> ${opp.maxAward}</p>
+                <p style="margin: 0 0 5px 0;"><strong>Deadline:</strong> ${opp.deadline} <span style="font-weight: bold; color: ${opp.status === 'Closing Soon' ? '#ef4444' : '#10b981'};">(${opp.status})</span></p>
+                <p style="margin: 5px 0; font-size: 14px; color: #475569;">${opp.description}</p>
+                <a href="${opp.link}" style="display: inline-block; margin-top: 10px; color: #2563eb; text-decoration: none; font-weight: bold;">Verify / Apply &rarr;</a>
+            </div>
+        `;
+    });
+
+    htmlContent += `
+            <hr style="border: 1px solid #e5e7eb; margin: 20px 0;" />
+            <p style="font-size: 12px; color: #94a3b8; text-align: center;">Automated by ABIF Funding Scraper &bull; <a href="https://github.com/ttaruntej/ABIF-Funding-Tracker" style="color: #94a3b8;">View Dashboard</a></p>
+        </div>
+    `;
+
+    try {
+        const info = await transporter.sendMail({
+            from: SMTP_FROM || '"ABIF Funding Bot" <noreply@abif.org>',
+            to: ABIF_TEAM_EMAIL,
+            subject: \`🚀 [ABIF Alert] \${incubatorOpps.length} Active Incubator Grants & Funding Opportunities\`,
+            html: htmlContent,
+        });
+        console.log(\`  ✓ Email sent successfully to ABIF Team: \${info.messageId}\`);
+    } catch (error) {
+        console.error('  ✗ Error sending email:', error);
+    }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function runScrapers() {
     console.log('═══════════════════════════════════════════════');
     console.log('  ABIF Funding Tracker — Automated Scraper');
-    console.log(`  ${new Date().toISOString()}`);
+    console.log(\`  \${new Date().toISOString()}\`);
     console.log('═══════════════════════════════════════════════');
 
     let browser;
@@ -992,7 +1063,7 @@ async function runScrapers() {
     allScraped.push(...sidbiRecords);
 
     await browser.close();
-    console.log(`\n  Tier A+C scraped: ${allScraped.length} entries`);
+    console.log(\`\\n  Tier A+C scraped: \${allScraped.length} entries\`);
 
     // ── Read existing data ──
     let existingData = [];
@@ -1038,7 +1109,7 @@ async function runScrapers() {
 
     // ── Merge everything ──
     if (allScraped.length < 5) {
-        console.error(`\n  ✗ CRITICAL FAILURE: Scrapers only yielded ${allScraped.length} entries (expected 5+).`);
+        console.error(\`\\n  ✗ CRITICAL FAILURE: Scrapers only yielded \${allScraped.length} entries (expected 5+).\`);
         console.error('  This indicates a fundamental block (firewall, layout change, headless detection).');
         console.error('  Failing the CI/CD run to prevent silent data rot.');
         process.exit(1);
@@ -1054,13 +1125,16 @@ async function runScrapers() {
     // ── Write output ──
     fs.writeFileSync(DATA_FILE, JSON.stringify(finalData, null, 2));
 
+    // Send the email if configured
+    await sendIncubatorReport(finalData);
+
     const broken = finalData.filter(x => x.linkStatus === 'broken').length;
     const verified = finalData.filter(x => x.linkStatus === 'verified').length;
     const closing = finalData.filter(x => x.status === 'Closing Soon').length;
 
-    console.log('\n═══════════════════════════════════════════════');
-    console.log(`  ✓ Done! Saved ${finalData.length} opportunities.`);
-    console.log(`    Verified links: ${verified} | Broken: ${broken} | Closing Soon: ${closing}`);
+    console.log('\\n═══════════════════════════════════════════════');
+    console.log(\`  ✓ Done! Saved \${finalData.length} opportunities.\`);
+    console.log(`    Verified links: ${ verified } | Broken: ${ broken } | Closing Soon: ${ closing }`);
     console.log('═══════════════════════════════════════════════\n');
 }
 
