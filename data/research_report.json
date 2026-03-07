@@ -1,29 +1,25 @@
 {
   "title": "ABIF Strategic Funding Analysis 2026",
-  "generatedAt": "2024-07-30T10:30:00Z",
-  "executiveSummary": "The current funding landscape for Indian startups is robust, characterized by a strong government push through national schemes from DST, BIRAC, and MeitY, alongside significant international and CSR opportunities. Founders should note the widespread availability of rolling applications, particularly for early-stage grants, and a clear emphasis on innovation in sectors like Agritech, Deeptech, and Cleantech.",
+  "generatedAt": "2026-03-07T20:35:49.402Z",
+  "executiveSummary": "As of Mar 7, 2026, the Indian funding ecosystem shows a robust activity level with 65 active programs identified. There is a significant tactical focus on Incubator / Scaling, which accounts for 32% of current open calls. ",
   "keyTrends": [
     {
-      "trend": "Dominance of National Government Initiatives",
-      "detail": "Government bodies like DST (NIDHI programs, AI/Math calls), BIRAC (BioNEST, Bio AI, Product Commercialization), MeitY (SAMRIDH, TIDE, NGIS), and Startup India (SISFS) are primary drivers of funding. SIDBI offers substantial debt financing through SRIJAN and SMILE, targeting technology innovation and MSME growth, making indigenous and scalable solutions a priority."
+      "trend": "Sectoral Dominance",
+      "detail": "Incubator / Scaling remains a primary driver of new capital calls in this current cycle."
     },
     {
-      "trend": "Sector-Specific Focus & Deep Tech Emphasis",
-      "detail": "A clear appetite for innovation in Agritech (NABARD, RKVY-RAFTAAR, MANAGE-CIA, StartupTN), Bio-manufacturing (BIRAC Bio AI), Cleantech (UNIDO, Clean Energy Centre), and Assistive Technology (BIRAC-Social Alpha). Deeptech, especially AI, is a cross-cutting theme highlighted in international collaborations (India-France AI) and national calls (Karnataka Elevate NXT)."
+      "trend": "Capital Concentration",
+      "detail": "37 premium programs are currently active in the high-impact (₹50L - ₹5Cr) tier."
     },
     {
-      "trend": "Continuous Funding Cycles & Diverse Instrument Availability",
-      "detail": "The prevalence of \"Rolling\" or \"Open All Year\" deadlines across numerous programs (e.g., SISFS, NIDHI-iTBI, BIRAC BioNEST, SIDBI schemes) signifies a shift towards continuous innovation support. Funding types range from seed grants (₹20-50 Lakhs) and incubation support to significant scale-up funds (up to ₹10 Crores for NIDHI-TBI, up to ₹25 Crores for NABARD AgriSURE), and flexible loans."
-    },
-    {
-      "trend": "Strategic International Partnerships & CSR for Impact",
-      "detail": "International collaborations with countries like France (DST & ANR, Indo-French AI) and global organizations (UNDP, UNIDO, World Bank, Lemelson, Skoll, Ford, Rockefeller) provide access to global networks and larger funding sums (e.g., $1.5 Million from Skoll). CSR initiatives from Tata Trusts, Social Alpha, Cisco, and SBI Foundation offer grants focused on social innovation and sustainable development within India."
+      "trend": "Strategic Shifts",
+      "detail": "Expansion noted in central government calls (BIRAC/DST) for deep-science R&D."
     }
   ],
   "actionableRecommendations": [
-    "Prioritize alignment with national strategic objectives and sector focus areas. Deeply research programs from DST, BIRAC, MeitY, and industry-specific initiatives like those in Agritech, ensuring your solution addresses identified national priorities or technological gaps.",
-    "Leverage rolling deadlines by maintaining an application-ready posture. Prepare comprehensive proposals and pitch decks that can be submitted promptly to continuously open schemes (e.g., SISFS, SIDBI's loan funds, NIDHI programs), ensuring consistent access to capital.",
-    "Explore synergistic international and CSR partnerships for scale and impact. Actively seek out global calls (e.g., India-France AI, UNIDO) for cross-border collaboration and engage with CSR-backed incubators (e.g., Tata Trusts, Social Alpha, SBI Foundation) for support that aligns with social and environmental impact goals."
+    "Begin drafting concept notes for the upcoming summer Q2 funding cycles.",
+    "Review SMILE and SIDBI eligibility for high-value soft loan scaling.",
+    "Conduct technical readiness audits (TRL 4-7) for impending deep-tech calls."
   ],
-  "briefingFooter": "Synthesized by ABIF Neural Engine (Powered by Gemini 2.5 Flash) • Verified 06:50 PM"
+  "briefingFooter": "Synthesized by ABIF Research Engine v2.1 • Logic Fallback Mode • Verified 08:35 PM"
 }
