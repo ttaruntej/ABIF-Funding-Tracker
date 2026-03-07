@@ -150,7 +150,7 @@ const Dashboard = () => {
 
             // Trigger the email
             await triggerEmail(targetEmails);
-            setEmailNotification({ type: 'in_progress', message: 'GitHub Action spin up... (~10s)' });
+            setEmailNotification({ type: 'in_progress', message: 'Initiating secure data sync... (~10s)' });
 
             // Start polling for status
             let attempts = 0;
@@ -171,7 +171,7 @@ const Dashboard = () => {
                     // Wait for a NEW run to appear or if the status becomes in_progress
                     if (statusData.run_id && statusData.run_id !== baselineRunId) {
                         if (statusData.status === 'in_progress') {
-                            setEmailNotification({ type: 'in_progress', message: 'Agent dispatching email via SMTP...' });
+                            setEmailNotification({ type: 'in_progress', message: 'Dispatching intelligence briefing...' });
                         } else if (statusData.status === 'completed') {
                             clearInterval(pollInterval);
                             if (statusData.conclusion === 'success') {
@@ -364,13 +364,13 @@ const Dashboard = () => {
                                 className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${activeAudience === 'startup' ? 'bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
                                 onClick={() => { setActiveAudience('startup'); setActiveSector('All Sectors'); }}
                             >
-                                🚀 For My Startups
+                                🚀 Portfolio Startups
                             </button>
                             <button
                                 className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${activeAudience === 'incubator' ? 'bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'text-slate-500 hover:text-slate-300'}`}
                                 onClick={() => { setActiveAudience('incubator'); setActiveSector('All Sectors'); }}
                             >
-                                🏢 For My Incubator
+                                🏢 Incubator Initiatives
                             </button>
                         </div>
 
@@ -415,12 +415,12 @@ const Dashboard = () => {
 
                         {filtered.length === 0 ? (
                             <EmptyState
-                                title={searchQuery ? "No Matches Found" : "No Opportunities Found"}
+                                title={searchQuery ? "No Matches Found" : "No Mandates Found"}
                                 message={searchQuery
                                     ? `We couldn't find any programs matching "${searchQuery}". Try a different keyword.`
                                     : "Refine your tags to see available funding sources."
                                 }
-                                actionLabel={searchQuery ? "Clear Search" : "View All Opportunities"}
+                                actionLabel={searchQuery ? "Clear Search" : "View All Mandates"}
                                 onAction={searchQuery ? () => setSearchQuery('') : () => setActiveCategory('all')}
                             />
                         ) : (

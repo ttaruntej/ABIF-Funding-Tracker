@@ -21,7 +21,7 @@ const StatsBoard = ({ stats, marketSentiment }) => {
                 <div className="w-10 h-10 bg-blue-50 dark:bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3 border border-blue-100 dark:border-blue-500/20 group-hover:scale-110 transition-transform">
                     <span className="text-blue-500 dark:text-blue-400">🔥</span>
                 </div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active Opportunities</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Active Funding Mandates</p>
                 <div className="flex flex-col items-center">
                     <h2 className="text-4xl font-bold bg-gradient-to-br from-blue-300 to-blue-600 bg-clip-text text-transparent leading-tight">{stats.active}</h2>
                     <div className={`mt-2 px-2.5 py-0.5 rounded-full border border-current text-[10px] font-black uppercase tracking-wider ${marketSentiment.color} ${marketSentiment.bg} animate-in zoom-in-95 duration-500`}>
@@ -43,7 +43,7 @@ const StatsBoard = ({ stats, marketSentiment }) => {
                                 <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></span>
                                 <span className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></span>
                             </div>
-                            <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Live Intelligent Briefing</p>
+                            <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">Live Ecosystem Briefing</p>
                         </div>
                         <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">{briefing.timestamp || 'Real-time'}</span>
                     </div>

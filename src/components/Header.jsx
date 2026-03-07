@@ -28,7 +28,7 @@ const Header = ({
                     ABIF
                 </h1>
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-semibold tracking-wider uppercase mt-1">
-                    Opportunities Tracker
+                    Funding Intelligence Radar
                 </p>
             </div>
 
@@ -50,7 +50,7 @@ const Header = ({
                             }`}
                         onClick={() => setCurrentView(currentView === 'dashboard' ? 'archive' : 'dashboard')}
                     >
-                        {currentView === 'dashboard' ? '🗄️ View Archive' : '📊 Back to Dashboard'}
+                        {currentView === 'dashboard' ? '🗄️ Past Mandates' : '📊 Back to Radar'}
                     </button>
 
                     {/* Export */}
@@ -58,7 +58,7 @@ const Header = ({
                         className="px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2 border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm"
                         onClick={handleExportCSV}
                     >
-                        📥 Export CSV
+                        📥 Export Deal Flow
                     </button>
 
                     {/* Email */}
@@ -66,7 +66,7 @@ const Header = ({
                         className="px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center gap-2 border bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 shadow-sm"
                         onClick={() => setIsEmailModalOpen(true)}
                     >
-                        <Mail size={16} /> Send Alert
+                        <Mail size={16} /> Dispatch Intelligence
                     </button>
 
                     {/* Refresh */}
@@ -80,19 +80,19 @@ const Header = ({
                             <path d="M1 20v-6h6"></path>
                             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
                         </svg>
-                        Update
+                        Sync Ecosystem
                     </button>
                 </div>
 
                 <div className="flex flex-col items-end text-[10px] text-slate-400 dark:text-slate-500 font-medium tracking-tight">
                     <div className="flex items-center gap-1.5">
                         <span className="w-1 h-1 rounded-full bg-blue-500"></span>
-                        Last Refreshed: {lastUpdated}
+                        Ecosystem Synced: {lastUpdated}
                     </div>
                     {lastEmailDispatch && (
                         <div className="flex items-center gap-1.5 text-indigo-500 dark:text-indigo-400/80 mt-0.5 animate-in fade-in slide-in-from-right-2">
                             <span className="w-1 h-1 rounded-full bg-indigo-500 animate-pulse"></span>
-                            Last Alert Dispatched: {lastEmailDispatch}
+                            Last Intelligence Dispatched: {lastEmailDispatch}
                         </div>
                     )}
                 </div>

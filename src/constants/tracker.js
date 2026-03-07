@@ -47,7 +47,7 @@ export const SECTIONS = [
     },
     {
         key: 'rolling',
-        label: '🔵 Rolling Opportunities',
+        label: '🔵 Rolling Mandates',
         subtitle: 'Apply anytime — no fixed deadline',
         filter: o => o.status === 'Rolling',
         borderColor: 'border-blue-500'

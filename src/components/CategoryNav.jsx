@@ -45,7 +45,7 @@ const CategoryNav = ({
                 <div className="relative w-full lg:w-80 flex-shrink-0 group">
                     <input
                         type="text"
-                        placeholder="Search programs..."
+                        placeholder="Scan deal flow..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl py-2 pl-10 pr-4 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all group-hover:bg-slate-100 dark:group-hover:bg-slate-800"
