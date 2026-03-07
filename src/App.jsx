@@ -11,6 +11,8 @@ import StatsBoard from './components/StatsBoard';
 import CategoryNav from './components/CategoryNav';
 import SchemeCard from './components/SchemeCard';
 import EmptyState from './components/EmptyState';
+import Footer from './components/Footer';
+
 
 const Dashboard = () => {
     // Theme setup based on system preference or local storage
@@ -510,6 +512,7 @@ const Dashboard = () => {
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #334155; }
             `}} />
+            <Footer />
         </div>
     );
 };
