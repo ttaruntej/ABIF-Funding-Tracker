@@ -1015,13 +1015,16 @@ async function sendIncubatorReport(data) {
     `;
 
     try {
+        // Handle potentially multiple comma-separated emails safely and cleanly
+        const recipients = ABIF_TEAM_EMAIL.split(',').map(e => e.trim()).filter(e => e).join(', ');
+
         const info = await transporter.sendMail({
             from: SMTP_FROM || '"ABIF Funding Bot" <noreply@abif.org>',
-            to: ABIF_TEAM_EMAIL,
-            subject: \`🚀 [ABIF Alert] \${incubatorOpps.length} Active Incubator Grants & Funding Opportunities\`,
+            to: recipients,
+            subject: `🚀 [ABIF Alert] ${incubatorOpps.length} Active Incubator Grants & Funding Opportunities`,
             html: htmlContent,
         });
-        console.log(\`  ✓ Email sent successfully to ABIF Team: \${info.messageId}\`);
+        console.log(`  ✓ Email sent successfully to ABIF Team: ${info.messageId}`);
     } catch (error) {
         console.error('  ✗ Error sending email:', error);
     }
@@ -1032,7 +1035,7 @@ async function sendIncubatorReport(data) {
 async function runScrapers() {
     console.log('═══════════════════════════════════════════════');
     console.log('  ABIF Funding Tracker — Automated Scraper');
-    console.log(\`  \${new Date().toISOString()}\`);
+    console.log(`  ${new Date().toISOString()}`);
     console.log('═══════════════════════════════════════════════');
 
     let browser;
@@ -1063,7 +1066,7 @@ async function runScrapers() {
     allScraped.push(...sidbiRecords);
 
     await browser.close();
-    console.log(\`\\n  Tier A+C scraped: \${allScraped.length} entries\`);
+    console.log(`\n  Tier A+C scraped: ${allScraped.length} entries`);
 
     // ── Read existing data ──
     let existingData = [];
@@ -1109,7 +1112,7 @@ async function runScrapers() {
 
     // ── Merge everything ──
     if (allScraped.length < 5) {
-        console.error(\`\\n  ✗ CRITICAL FAILURE: Scrapers only yielded \${allScraped.length} entries (expected 5+).\`);
+        console.error(`\n  ✗ CRITICAL FAILURE: Scrapers only yielded ${allScraped.length} entries (expected 5+).`);
         console.error('  This indicates a fundamental block (firewall, layout change, headless detection).');
         console.error('  Failing the CI/CD run to prevent silent data rot.');
         process.exit(1);
@@ -1132,9 +1135,9 @@ async function runScrapers() {
     const verified = finalData.filter(x => x.linkStatus === 'verified').length;
     const closing = finalData.filter(x => x.status === 'Closing Soon').length;
 
-    console.log('\\n═══════════════════════════════════════════════');
-    console.log(\`  ✓ Done! Saved \${finalData.length} opportunities.\`);
-    console.log(`    Verified links: ${ verified } | Broken: ${ broken } | Closing Soon: ${ closing }`);
+    console.log('\n═══════════════════════════════════════════════');
+    console.log(`  ✓ Done! Saved ${finalData.length} opportunities.`);
+    console.log(`    Verified links: ${verified} | Broken: ${broken} | Closing Soon: ${closing}`);
     console.log('═══════════════════════════════════════════════\n');
 }
 
