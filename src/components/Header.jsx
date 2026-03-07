@@ -14,17 +14,10 @@ const Header = ({
 }) => {
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
     const [emailInput, setEmailInput] = useState('');
-    const [isSending, setIsSending] = useState(false);
-
     const onSendClick = async () => {
-        setIsSending(true);
-        try {
-            await handleEmailTrigger(emailInput);
-            setIsEmailModalOpen(false);
-            setEmailInput('');
-        } finally {
-            setIsSending(false);
-        }
+        setIsEmailModalOpen(false);
+        handleEmailTrigger(emailInput);
+        setEmailInput('');
     };
 
     return (
@@ -118,17 +111,9 @@ const Header = ({
                     />
                     <button
                         onClick={onSendClick}
-                        disabled={isSending}
-                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 rounded-lg transition-colors flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 rounded-lg transition-colors flex justify-center items-center gap-2"
                     >
-                        {isSending ? (
-                            <span className="flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                Sending...
-                            </span>
-                        ) : (
-                            <span className="flex items-center gap-2"><Send size={14} /> Dispatch Email</span>
-                        )}
+                        <span className="flex items-center gap-2"><Send size={14} /> Dispatch Email</span>
                     </button>
                 </div>
             )}

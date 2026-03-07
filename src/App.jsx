@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
 
-import { fetchOpportunities, triggerScraper, getScraperStatus, fetchResearchReport, triggerEmail } from './services/api';
+import { fetchOpportunities, triggerScraper, getScraperStatus, fetchResearchReport, triggerEmail, getEmailStatus } from './services/api';
 import { exportToCSV } from './utils/csvExporter';
 import { generateBriefing } from './utils/aiBriefing';
 import { SECTIONS, CATEGORIES } from './constants/tracker';
@@ -131,12 +131,60 @@ const Dashboard = () => {
 
     const handleEmailTrigger = async (targetEmails) => {
         try {
+            // Start the dispatch process, notify user we are initializing
+            setEmailNotification({ type: 'initializing', message: 'Connecting to Vercel API...' });
+
+            // Get current run ID to have a baseline
+            let initialStatus;
+            try {
+                initialStatus = await getEmailStatus();
+            } catch (e) {
+                console.warn("Could not fetch initial baseline status, proceeding anyway.");
+            }
+            const baselineRunId = initialStatus?.run_id;
+
+            // Trigger the email
             await triggerEmail(targetEmails);
-            setEmailNotification({ type: 'success', message: 'Intelligence briefing dispatched successfully!' });
-            setTimeout(() => setEmailNotification(null), 5000);
+            setEmailNotification({ type: 'in_progress', message: 'GitHub Action spin up... (~10s)' });
+
+            // Start polling for status
+            let attempts = 0;
+            const maxAttempts = 24; // 2 minutes total (24 * 5s)
+
+            const pollInterval = setInterval(async () => {
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    clearInterval(pollInterval);
+                    setEmailNotification({ type: 'error', message: 'Dispatch timed out. Please check logs.' });
+                    setTimeout(() => setEmailNotification(null), 7000);
+                    return;
+                }
+
+                try {
+                    const statusData = await getEmailStatus();
+
+                    // Wait for a NEW run to appear or if the status becomes in_progress
+                    if (statusData.run_id && statusData.run_id !== baselineRunId) {
+                        if (statusData.status === 'in_progress') {
+                            setEmailNotification({ type: 'in_progress', message: 'Agent dispatching email via SMTP...' });
+                        } else if (statusData.status === 'completed') {
+                            clearInterval(pollInterval);
+                            if (statusData.conclusion === 'success') {
+                                setEmailNotification({ type: 'success', message: 'Intelligence briefing dispatched successfully!' });
+                            } else {
+                                setEmailNotification({ type: 'error', message: `Dispatch failed: ${statusData.conclusion}` });
+                            }
+                            setTimeout(() => setEmailNotification(null), 6000);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Email status polling error:', e);
+                }
+            }, 5000);
+
         } catch (err) {
             console.error('Email trigger failed:', err.message);
-            setEmailNotification({ type: 'error', message: 'Failed to dispatch email. Check connection.' });
+            setEmailNotification({ type: 'error', message: 'Failed to trigger email. Check connection.' });
             setTimeout(() => setEmailNotification(null), 5000);
         }
     };
@@ -262,17 +310,26 @@ const Dashboard = () => {
                 {/* Email Notification Toast */}
                 {emailNotification && (
                     <div className="fixed bottom-8 right-8 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
-                        <div className={`backdrop-blur-xl border shadow-2xl rounded-2xl p-4 flex items-center gap-4 w-[320px] bg-white/90 dark:bg-slate-800/90 ${emailNotification.type === 'success'
-                                ? 'border-emerald-500/50 text-emerald-600 dark:text-emerald-400'
-                                : 'border-red-500/50 text-red-600 dark:text-red-400'
+                        <div className={`backdrop-blur-xl border shadow-2xl rounded-2xl p-4 flex items-center gap-4 w-[320px] bg-white/90 dark:bg-slate-800/90 ${emailNotification.type === 'success' ? 'border-emerald-500/50 text-emerald-600 dark:text-emerald-400'
+                                : emailNotification.type === 'error' ? 'border-red-500/50 text-red-600 dark:text-red-400'
+                                    : 'border-blue-500/50 text-blue-600 dark:text-blue-400'
                             }`}>
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg 
-                                ${emailNotification.type === 'success' ? 'bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.3)] border border-emerald-500' : 'bg-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-red-500'}`}>
-                                {emailNotification.type === 'success' ? '✓' : '✗'}
+                            <div className={`w-10 h-10 min-w-10 rounded-full flex items-center justify-center font-bold text-lg 
+                                ${emailNotification.type === 'success' ? 'bg-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.3)] border border-emerald-500'
+                                    : emailNotification.type === 'error' ? 'bg-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.3)] border border-red-500'
+                                        : 'bg-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-blue-500'}`}>
+                                {emailNotification.type === 'success' ? '✓'
+                                    : emailNotification.type === 'error' ? '✗'
+                                        : <div className="w-4 h-4 border-2 border-transparent border-t-current rounded-full animate-spin"></div>}
                             </div>
-                            <div>
-                                <h3 className="font-bold m-0 text-slate-800 dark:text-slate-100">{emailNotification.type === 'success' ? 'Dispatch Successful' : 'Dispatch Failed'}</h3>
-                                <p className="text-xs m-0 text-slate-500 dark:text-slate-400">{emailNotification.message}</p>
+                            <div className="flex-1">
+                                <h3 className="font-bold m-0 text-slate-800 dark:text-slate-100">
+                                    {emailNotification.type === 'success' ? 'Dispatch Successful'
+                                        : emailNotification.type === 'error' ? 'Dispatch Failed'
+                                            : emailNotification.type === 'initializing' ? 'Initializing...'
+                                                : 'Dispatching Alert...'}
+                                </h3>
+                                <p className="text-xs m-0 text-slate-500 dark:text-slate-400 leading-tight mt-1">{emailNotification.message}</p>
                             </div>
                         </div>
                     </div>
