@@ -1,29 +1,26 @@
 {
   "title": "ABIF Strategic Funding Analysis 2026",
-  "generatedAt": "2023-10-27T03:43:00+05:30",
-  "executiveSummary": "The current funding landscape for Indian startups is robust, dominated by continuous national programs from key government bodies like DST, BIRAC, MeitY, and SIDBI, often featuring rolling deadlines. Significant opportunities also arise from international collaborations and CSR initiatives, with a pronounced focus on deep technology, sustainable solutions, and particularly, the agri-tech sector. Founders can leverage a diverse array of grants, seed funds, and incubation support tailored for various stages of innovation.",
+  "generatedAt": "2024-05-15T11:06:23Z",
+  "executiveSummary": "The current funding landscape for Indian startups in 2026 is robust, driven significantly by national government bodies like DST, BIRAC, and SIDBI, complemented by diverse international and CSR-led initiatives. A clear emphasis on deep technology, particularly Agritech, AI, and Cleantech, is evident, with numerous programs offering continuous support through rolling deadlines. Founders can expect a blend of grants, seed funds, and larger institutional investments across various stages of growth.",
   "keyTrends": [
     {
-      "trend": "Dominance of Continuous National Programs",
-      "detail": "Indian government bodies such as DST, BIRAC, MeitY, and SIDBI are offering extensive and continuous funding through 'Rolling' application deadlines. Programs like NIDHI-iTBI, BIRAC BioNEST, Startup India SISFS, and SIDBI's SRIJAN and SMILE funds provide consistent access to capital and incubation support, indicating a strategic long-term commitment to ecosystem development rather than one-off calls."
+      "trend": "Government-Led Deep Tech & Sector-Specific Innovation",
+      "detail": "Providers such as DST (MoST), BIRAC, and MeitY are heavily investing in deep tech, Bio-AI, and AI-driven solutions through substantial grants and dedicated incubator support schemes (e.g., NIDHI-TBI, BIRAC BioNEST, DBT-BIRAC Bio AI call). SIDBI further enhances this by offering crucial financial instruments like the SRIJAN and SMILE funds for scaling technology innovations and supporting MSMEs across the nation."
     },
     {
-      "trend": "Focus on Deep Technology and Emerging Sectors",
-      "detail": "There's a clear strategic push towards advanced technologies, with specific calls for AI (India-France AI Call, DBT-BIRAC Bio AI), Assistive Tech (BIRAC–Social Alpha), Cleantech (UNIDO, Tata Trusts / Social Alpha), and Biomanufacturing. Providers like DST and BIRAC are actively seeking solutions in these high-impact, knowledge-intensive domains, often through international research collaborations."
+      "trend": "Dominance of Agritech and Cleantech Sectors",
+      "detail": "A significant number of opportunities, including those from the Bill & Melinda Gates Foundation (India Agritech Incubation Network), Cisco CSR (Krishi Mangal), NABARD (AgriSURE Fund), and UNIDO (Global Cleantech Innovation Programme), specifically target innovations in agriculture and clean energy. This signals high demand, sustained support, and a strategic focus on sustainable and impactful solutions within these critical sectors."
     },
     {
-      "trend": "Prioritization of Agri-Tech Innovation",
-      "detail": "A significant number of opportunities are concentrated in the agricultural sector, driven by major players such as the Bill & Melinda Gates Foundation, NABARD, Cisco CSR, and ICAR-NAARM. Programs like the India Agritech Incubation Network, Krishi Mangal, NABARD AgriSURE Fund, and RKVY-RAFTAAR Seed Grants highlight a concerted effort to foster innovation and sustainable development in agri-business across various stages of startup growth."
-    },
-    {
-      "trend": "Strategic CSR and International Funding Integration",
-      "detail": "Beyond government grants, substantial funding is accessible through corporate social responsibility (CSR) initiatives (e.g., Tata Trusts, Cisco CSR, SBI Foundation) and prominent international organizations (e.g., UNDP, World Bank, Rockefeller Foundation, Skoll Foundation). These avenues often target social impact ventures, sustainable development goals, and offer significant award sizes, providing diversified funding streams for mission-driven startups."
+      "trend": "Increasing International Collaboration & Impact-Driven Capital",
+      "detail": "DST is actively fostering international R&D partnerships (e.g., India-France AI Call, India Netherlands Hydrogen Fellowship Programme), while global philanthropic foundations like Rockefeller, Ford, and Skoll provide substantial funding (up to $1.5 Million) for ventures demonstrating significant societal and global impact. This trend highlights opportunities for startups with strong social innovation components and international aspirations."
     }
   ],
   "actionableRecommendations": [
-    "Leverage continuous national programs by regularly monitoring and applying for rolling deadline schemes from DST, BIRAC, MeitY, and SIDBI to ensure consistent funding access.",
-    "Prioritize venture development in deep technology, AI, cleantech, and especially agri-tech, aligning proposals with the explicit sectoral focus and substantial awards offered by key national and international providers.",
-    "Strategically explore CSR and international grant opportunities, particularly for solutions with social impact or global scalability, as these often provide larger funding envelopes and unique partnership potential."
+    "Prioritize deep-tech and sector-specific solutions, especially in Agritech, AI/Bio-AI, Clean Energy, and Assistive Technology, to align with the predominant funding interests of key national and international providers.",
+    "Actively engage with national incubation networks and government schemes, such as those under DST (NIDHI-TBI, NIDHI-EIR), BIRAC (BioNEST), and MeitY (TIDE 2.0, NGIS), as they offer continuous application windows and robust ecosystem support.",
+    "Explore international collaboration opportunities through DST's joint calls and leverage CSR funding from foundations like Tata Trusts, Social Alpha, SBI Foundation, and others for solutions with strong social impact and sustainable development goals.",
+    "Maintain high organizational agility to track and apply for programs with 'Rolling' deadlines, and diligently verify the status of opportunities marked 'Verify Manually' or 'TBA' to ensure timely submission and avoid missed funding windows."
   ],
-  "briefingFooter": "Synthesized by ABIF Neural Engine (Powered by Gemini 2.5 Flash) • Verified 03:43 AM"
+  "briefingFooter": "Synthesized by ABIF Neural Engine (Powered by Gemini 2.5 Flash) • Verified 04:35 AM"
 }
