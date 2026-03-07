@@ -25,6 +25,7 @@ const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, '../public/data/opportunities.json');
 
 const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
+const MODEL_NAME = "gemini-1.5-pro"; // Upgraded for 2M context window
 
 // --- CORE UTILS ---
 
@@ -34,15 +35,22 @@ async function randomDelay(min = 3000, max = 7000) {
 }
 
 /**
- * Intelligent AI Discovery
- * Asks Gemini to find and extract scheme details from a page's raw text.
+ * Intelligent AI Discovery (v2.0 - Pro Mode)
  */
 async function aiDetectOpportunities(page) {
     if (!genAI) return [];
 
     try {
-        const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 15000));
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 50000));
+        const model = genAI.getGenerativeModel({
+            model: MODEL_NAME,
+            safetySettings: [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+            ]
+        });
         const prompt = `You are the ABIF Funding Intelligence Agent. Analyze the following webpage text and extract all ACTIVE funding opportunities, grants, or schemes for Indian Startups or Incubators.
         
         Text: ${bodyText}
@@ -54,6 +62,8 @@ async function aiDetectOpportunities(page) {
         - maxAward: Funding amount if mentioned
         - description: Brief 1-sentence summary
         - targetAudience: Array including 'startup' or 'incubator'
+        - category: One of 'national', 'international', 'state', or 'csr'
+        - detailUrl: If the text contains a specific link/URL for more details on this scheme, include it.
         
         Return an empty array [] if no active grants are found. Only return JSON.`;
 
@@ -62,8 +72,35 @@ async function aiDetectOpportunities(page) {
         text = text.replace(/^```json\n?/, '').replace(/\n?```$/, '');
         return JSON.parse(text);
     } catch (e) {
-        console.error('    ❌ AI Detection failed:', e.message);
+        console.error('    ❌ AI Detection/Validation failed:', e.message);
         return [];
+    }
+}
+
+/**
+ * AI-Powered Fuzzy Deduplication
+ */
+async function aiIsDuplicate(candidateName, existingNames) {
+    if (!genAI || existingNames.length === 0) return false;
+
+    // Direct match check first
+    if (existingNames.some(name => name.toLowerCase() === candidateName.toLowerCase())) return true;
+
+    try {
+        const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+        const prompt = `Compare these funding scheme names. Do they refer to the SAME scheme?
+        
+        New Candidate: "${candidateName}"
+        Existing Schemes: ${JSON.stringify(existingNames.slice(-40))}
+        
+        Respond ONLY with "YES" if it is a duplicate or very similar variant, "NO" otherwise.`;
+
+        const result = await model.generateContent(prompt);
+        const response = result.response.text().trim().toUpperCase();
+        return response.includes('YES');
+    } catch (e) {
+        console.error('    ❌ Fuzzy Deduplication failed:', e.message);
+        return false;
     }
 }
 
@@ -135,7 +172,7 @@ async function deepScanStartupIndia(browser) {
 // --- MAIN ---
 
 async function main() {
-    console.log('\n🚀 Starting ABIF Deep Intelligence Scan (Overnight Agent)...');
+    console.log('\n🚀 Starting ABIF Deep Intelligence Scan (v2.0 - Pro Mode)...');
     const browser = await puppeteer.launch({
         headless: "new",
         args: ['--no-sandbox', '--disable-setuid-sandbox']
@@ -152,19 +189,34 @@ async function main() {
 
         if (fs.existsSync(DATA_FILE)) {
             const existingData = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-            const dataMap = new Map();
-            existingData.forEach(item => dataMap.set(item.name, item));
+            const existingNames = existingData.map(d => d.name);
+            const mergedData = [...existingData];
 
-            rawResults.forEach(item => {
-                const existing = dataMap.get(item.name) || {};
-                dataMap.set(item.name, {
-                    ...existing,
+            console.log('🧠 Running AI Fuzzy Deduplication & Metadata Enrichment...');
+            for (const item of rawResults) {
+                // Skip if exact name exists
+                if (existingNames.includes(item.name)) {
+                    const idx = mergedData.findIndex(d => d.name === item.name);
+                    mergedData[idx] = { ...mergedData[idx], ...item, lastScanned: new Date().toISOString() };
+                    continue;
+                }
+
+                // Check for fuzzy duplicates (batching or individual as needed, here individual for Pro accuracy)
+                const isFuzzyDup = await aiIsDuplicate(item.name, existingNames);
+                if (isFuzzyDup) {
+                    console.log(`   ⏩ Fuzzy Skip: "${item.name}" (Duplicate of existing mandate)`);
+                    continue;
+                }
+
+                console.log(`   ✨ New Discovery: "${item.name}"`);
+                mergedData.push({
                     ...item,
-                    lastScanned: new Date().toISOString()
+                    category: item.category || 'national',
+                    lastScanned: new Date().toISOString(),
+                    dataSource: item.dataSource || 'scraper:deep:ai'
                 });
-            });
+            }
 
-            const mergedData = Array.from(dataMap.values());
             fs.writeFileSync(DATA_FILE, JSON.stringify(mergedData, null, 4));
             console.log(`\n📁 Data synchronized. Total opportunities: ${mergedData.length}`);
         } else {
