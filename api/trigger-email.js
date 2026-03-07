@@ -8,6 +8,19 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'GitHub Token not configured' });
     }
 
+    // Enable CORS for frontend clients (Localhost & GitHub Pages)
+    res.setHeader('Access-Control-Allow-Credentials', true)
+    res.setHeader('Access-Control-Allow-Origin', '*') // Allow all origins
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    )
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end()
+    }
+
     const headers = {
         'Authorization': `Bearer ${GH_TOKEN}`,
         'Accept': 'application/vnd.github+json',
