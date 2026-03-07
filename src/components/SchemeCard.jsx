@@ -1,25 +1,19 @@
 import React from 'react';
-import { CATEGORIES, CAT_COLORS, STATUS_COLORS } from '../constants/tracker';
+import { CATEGORIES, STATUS_COLORS } from '../constants/tracker';
+import { ExternalLink, ShieldCheck, AlertTriangle, Target, DollarSign, Calendar, Lock } from 'lucide-react';
 
-const SchemeCard = ({ scheme, showCategoryBadge }) => {
+const SchemeCard = ({ scheme, showCategoryBadge, isArchivedMode }) => {
     const isVerified = scheme.linkStatus === 'verified';
     const isProbable = scheme.linkStatus === 'probable';
-    const isArchived = scheme.status === 'Closed' || scheme.status === 'Verify Manually';
+    const isArchived = scheme.status === 'Closed' || scheme.status === 'Verify Manually' || isArchivedMode;
 
-    let buttonLabel = 'Apply Now';
-    if (scheme.status === 'Coming Soon') buttonLabel = 'View Details';
-    if (isArchived) buttonLabel = 'Archived / Closed';
-
-    const catColor = CAT_COLORS[scheme.category] || CAT_COLORS.national;
     const catMeta = CATEGORIES.find(c => c.key === scheme.category);
-    const statusColor = STATUS_COLORS[scheme.status] || 'bg-slate-800 text-slate-400 border-slate-700';
+    const statusStyle = STATUS_COLORS[scheme.status] || 'bg-slate-800 text-slate-400 border-slate-700';
 
-    // AI Intelligence: Calculate stable confidence score
+    // AI Confidence Logic
     const generateConfidence = (name) => {
         let hash = 0;
-        for (let i = 0; i < name.length; i++) {
-            hash = name.charCodeAt(i) + ((hash << 5) - hash);
-        }
+        for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
         const base = isVerified ? 94 : isProbable ? 72 : 45;
         const variance = Math.abs(hash % 50) / 10;
         return (base + variance).toFixed(1);
@@ -27,87 +21,110 @@ const SchemeCard = ({ scheme, showCategoryBadge }) => {
     const confidence = generateConfidence(scheme.name);
 
     return (
-        <div className={`relative flex flex-col gap-4 p-6 rounded-2xl border bg-white/80 dark:bg-slate-800/80 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isArchived ? 'opacity-70 grayscale' : 'border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500'}`}>
-            {/* Status Badge */}
-            <span className={`absolute top-4 right-4 px-3 py-1 text-xs font-semibold uppercase tracking-wider rounded-full border ${statusColor}`}>
-                {scheme.status}
-            </span>
+        <div className={`group relative flex flex-col rounded-[40px] p-8 transition-all duration-700 overflow-hidden ${isArchivedMode
+                ? 'bg-slate-200/40 dark:bg-slate-800/20 border-slate-300 dark:border-white/5 opacity-80'
+                : 'bg-white/60 dark:bg-slate-900/40 border-white/20 dark:border-white/5 shadow-sm hover:shadow-3xl hover:-translate-y-2'
+            } border`}>
 
-            {/* Category Badge */}
-            {showCategoryBadge && scheme.category && scheme.category !== 'all' && (
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full border w-fit mt-2 ${catColor.bg} ${catColor.border} ${catColor.text}`}>
-                    {catMeta?.icon} {catMeta?.label ?? scheme.category}
-                </span>
-            )}
-
-            {/* Title & Provider */}
-            <div>
-                <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100 pr-24 leading-tight mb-1">{scheme.name}</h3>
-                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{scheme.body}</p>
-            </div>
-
-            {/* Tags (Sectors / Stages) */}
-            {(scheme.sectors || scheme.stages) && (
-                <div className="flex flex-wrap gap-2 mt-1">
-                    {scheme.stages?.map(s => (
-                        <span key={s} className="px-2 py-0.5 text-[0.7rem] font-medium tracking-wide uppercase rounded text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">{s}</span>
-                    ))}
-                    {scheme.sectors?.map(s => (
-                        <span key={s} className="px-2 py-0.5 text-[0.7rem] font-medium tracking-wide uppercase rounded text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30">{s}</span>
-                    ))}
+            {/* Arclight Depth Stamp */}
+            {isArchivedMode && (
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-5">
+                    <span className="archive-stamp italic transform -rotate-12 scale-150">ARCHIVED</span>
                 </div>
             )}
 
-            {/* Description */}
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mt-2">{scheme.description}</p>
+            {/* Top Tactical Layer */}
+            <div className="flex justify-between items-start mb-6 relative z-10">
+                <div className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm ${statusStyle} ${isArchivedMode ? 'grayscale opacity-50' : ''}`}>
+                    {scheme.status}
+                </div>
 
-            {/* Footer Elements */}
-            <div className="flex justify-between items-end mt-auto pt-4">
-                <span className="font-bold text-lg text-slate-700 dark:text-slate-200">{scheme.maxAward}</span>
-
-                <div className="flex flex-col items-end gap-2 text-right">
-                    {/* Link Badges */}
-                    {isVerified && !isArchived && (
-                        <div className="flex flex-col items-end gap-1">
-                            <span className="inline-block px-2 py-0.5 text-[0.6rem] font-bold rounded bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-500 uppercase tracking-tighter">
-                                AI Confidence: {confidence}%
-                            </span>
-                            <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full border bg-emerald-100 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400">
-                                ✅ Verified Link
-                            </span>
-                        </div>
-                    )}
-                    {isProbable && !isArchived && (
-                        <div className="flex flex-col items-end gap-1">
-                            <span className="inline-block px-2 py-0.5 text-[0.6rem] font-bold rounded bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-500 uppercase tracking-tighter">
-                                AI Confidence: {confidence}%
-                            </span>
-                            <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full border bg-amber-100 dark:bg-amber-900/20 border-amber-300 dark:border-amber-500/40 text-amber-700 dark:text-amber-400">
-                                ⚠️ Probable Link
-                            </span>
-                        </div>
-                    )}
-
-                    {/* Apply Button */}
-                    <a
-                        href={scheme.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`inline-block px-5 py-2 rounded-lg font-semibold text-sm transition-colors border ${isArchived
-                            ? 'bg-slate-100 dark:bg-transparent border-slate-300 dark:border-slate-600 text-slate-500 cursor-not-allowed pointer-events-none'
-                            : 'bg-white dark:bg-transparent border-blue-400 dark:border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10'
-                            }`}
-                        aria-disabled={isArchived}
-                    >
-                        {buttonLabel}
-                    </a>
+                <div className="flex flex-col items-end">
+                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm ${isArchivedMode ? 'bg-slate-100 dark:bg-slate-900/50' : 'bg-white/80 dark:bg-slate-800/80'}`}>
+                        <DollarSign size={12} className={isArchivedMode ? 'text-slate-400' : 'text-emerald-500'} />
+                        <span className={`text-[12px] font-black tracking-tight ${isArchivedMode ? 'text-slate-500' : 'text-slate-900 dark:text-white'}`}>{scheme.maxAward}</span>
+                    </div>
                 </div>
             </div>
 
-            {/* Deadline */}
-            <div className="text-xs text-slate-500 mt-1 border-t border-slate-200 dark:border-slate-700/50 pt-3">
-                📅 Deadline: <strong className="text-slate-700 dark:text-slate-300 font-semibold">{scheme.deadline}</strong>
+            {/* Content Layer */}
+            <div className="flex-1 relative z-10">
+                <div className="flex items-start gap-3 mb-3">
+                    <h3 className={`text-xl font-black leading-[1.1] tracking-tight transition-colors duration-500 ${isArchivedMode ? 'text-slate-600 dark:text-slate-500' : 'text-slate-950 dark:text-white group-hover:text-blue-500'
+                        }`}>
+                        {scheme.name}
+                    </h3>
+                </div>
+
+                <div className="flex items-center gap-2 mb-6">
+                    <Target size={12} className="text-slate-400 shrink-0" />
+                    <span className="text-[11px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest truncate">{scheme.body}</span>
+                </div>
+
+                {/* Meta Tags (Nano Style) */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                    {scheme.category && scheme.category !== 'all' && (
+                        <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5 ${isArchivedMode ? 'bg-slate-300 dark:bg-slate-800 text-slate-500' : 'bg-slate-950 dark:bg-white text-white dark:text-slate-900'
+                            }`}>
+                            {catMeta?.icon} {catMeta?.label}
+                        </span>
+                    )}
+                    {scheme.stages?.slice(0, 1).map(s => (
+                        <span key={s} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest">{s}</span>
+                    ))}
+                    {scheme.sectors?.slice(0, 1).map(s => (
+                        <span key={s} className={`px-2.5 py-1 rounded-lg border text-[9px] font-black uppercase tracking-widest ${isArchivedMode ? 'border-slate-300 dark:border-slate-800 text-slate-400' : 'bg-blue-500/5 border-blue-500/20 text-blue-500'
+                            }`}>{s}</span>
+                    ))}
+                </div>
+
+                <p className={`text-[13px] leading-relaxed line-clamp-3 mb-8 font-semibold italic ${isArchivedMode ? 'text-slate-400 dark:text-slate-600' : 'text-slate-500 dark:text-slate-400'
+                    }`}>
+                    {scheme.description}
+                </p>
             </div>
+
+            {/* Bottom Strategic Layer */}
+            <div className={`mt-auto pt-6 border-t relative z-10 flex items-center justify-between ${isArchivedMode ? 'border-slate-300 dark:border-slate-800/50' : 'border-slate-100 dark:border-slate-800/50'
+                }`}>
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                        <Calendar size={12} className="text-slate-400" />
+                        <span className={`text-[10px] font-black uppercase tracking-tighter ${isArchivedMode ? 'text-slate-400' : 'text-slate-500'}`}>Deadline: </span>
+                        <span className={`text-[11px] font-black ${isArchivedMode ? 'text-slate-500' : 'text-slate-800 dark:text-slate-200'}`}>{scheme.deadline}</span>
+                    </div>
+                    {/* Verification Pulse */}
+                    <div className="flex items-center gap-2">
+                        {isVerified ? (
+                            <>
+                                <ShieldCheck size={12} className={isArchivedMode ? 'text-slate-400' : 'text-emerald-500'} />
+                                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isArchivedMode ? 'text-slate-400' : 'text-emerald-500'}`}>Verified ({confidence}%)</span>
+                            </>
+                        ) : (
+                            <>
+                                <AlertTriangle size={12} className={isArchivedMode ? 'text-slate-400' : 'text-amber-500'} />
+                                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isArchivedMode ? 'text-slate-400' : 'text-amber-500'}`}>Probable ({confidence}%)</span>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                <a
+                    href={scheme.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all duration-500 ${isArchivedMode
+                        ? 'bg-slate-300/30 dark:bg-slate-900/50 text-slate-500 border border-slate-400/20'
+                        : 'bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 text-slate-950 dark:text-white hover:bg-slate-950 dark:hover:bg-white hover:text-white dark:hover:text-slate-950 shadow-xl'}`}
+                >
+                    {isArchivedMode ? <><Lock size={12} /> Vault Access</> : <><ExternalLink size={14} /> Open Mandate</>}
+                </a>
+            </div>
+
+            {/* Hover Glow Effect */}
+            {!isArchivedMode && (
+                <div className="absolute inset-0 rounded-[40px] bg-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none -z-10 blur-3xl scale-125" />
+            )}
         </div>
     );
 };

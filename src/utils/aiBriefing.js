@@ -6,7 +6,7 @@ export const generateBriefing = (data) => {
         status: 'dormant'
     };
 
-    const activeData = data.filter(s => ['Open', 'Rolling', 'Closing Soon', 'Open'].includes(s.status));
+    const activeData = data.filter(s => ['Open', 'Rolling', 'Closing Soon'].includes(s.status));
     const highValueData = activeData.filter(s => s.maxAward && /(Crore|Cr)/i.test(s.maxAward));
 
     // Sector Analysis
@@ -42,13 +42,13 @@ export const generateBriefing = (data) => {
 
     // Structured Insight generation
     return {
-        summary: `Strategic research analysis of ${activeData.length} active programs indicates a high concentration in ${topSector} funding segments.`,
+        summary: `Institutional research synthesis of ${activeData.length} active opportunities indicates primary traction in ${topSector} funding segments.`,
         insights: [
-            `${mainDriver} is currently driving the majority of central and state-level capital calls.`,
-            `High-value alert: ${highValueData.length} active programs provide funding in the Crore-plus tier.`,
+            `Strategic Note: ${mainDriver} is currently orchestrating the majority of institutional capital frameworks.`,
+            `Liquidity Exposure: ${highValueData.length} active programs provide capital in the Crore-plus tier.`,
             closingSoon > 0
-                ? `Critical Deadline Alert: ${closingSoon} programs will transition to ARCHIVE status within 14 days.`
-                : "Market Stability: High availability noted for continuous seed-level rolling programs."
+                ? `Operational Priority: ${closingSoon} initiatives are reaching cycle maturity within the next 14 days.`
+                : "Stability Assessment: Consistent availability observed for rolling strategic programs."
         ],
         highlight: topAward ? {
             name: topAward.name,

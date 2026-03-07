@@ -10,21 +10,33 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                     {/* Brand Column */}
                     <div className="space-y-4">
-                        <div className="flex flex-col">
-                            <h2 className="text-2xl font-black bg-gradient-to-r from-blue-500 to-emerald-500 dark:from-blue-400 dark:to-emerald-400 bg-clip-text text-transparent italic">
-                                ABIF
-                            </h2>
-                            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                                IIT Kharagpur
-                            </p>
-                        </div>
+                        <a
+                            href="https://abif.iitkgp.ac.in"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 hover:scale-[1.01] transition-transform origin-left"
+                        >
+                            <img
+                                src="https://abif.iitkgp.ac.in/logos/logo.png"
+                                alt="ABIF Logo"
+                                className="w-10 h-10 object-contain"
+                            />
+                            <div className="flex flex-col">
+                                <h2 className="text-2xl font-black bg-gradient-to-r from-blue-500 to-emerald-500 dark:from-blue-400 dark:to-emerald-400 bg-clip-text text-transparent italic">
+                                    ABIF
+                                </h2>
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">
+                                    IIT Kharagpur
+                                </p>
+                            </div>
+                        </a>
                         <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-xs">
                             Agri-Business Incubation Foundation (ABIF) at IIT Kharagpur is dedicated to nurturing agri-tech innovations and empowering startups through strategic funding and resources.
                         </p>
                         <div className="flex items-center gap-4 text-slate-400 dark:text-slate-500">
                             <a href="#" className="hover:text-blue-500 transition-colors"><Mail size={18} /></a>
                             <a href="#" className="hover:text-blue-500 transition-colors"><Github size={18} /></a>
-                            <a href="#" className="hover:text-blue-500 transition-colors"><Globe size={18} /></a>
+                            <a href="https://abif.iitkgp.ac.in" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500 transition-colors"><Globe size={18} /></a>
                         </div>
                     </div>
 
