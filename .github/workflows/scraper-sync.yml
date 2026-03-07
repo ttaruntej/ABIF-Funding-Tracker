@@ -63,3 +63,5 @@ jobs:
           publish_dir: ./dist
           # Preserve history for cleaner deployments
           keep_files: true 
+          # Skip CI to prevent Vercel from trying to build the gh-pages branch
+          commit_message: "deploy: ${{ github.sha }} [skip ci]"
