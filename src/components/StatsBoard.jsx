@@ -50,16 +50,16 @@ const StatsBoard = ({ stats, marketSentiment, onReportClick, opportunities }) =>
                                         <h.icon className={h.color} size={18} />
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{h.sub}</span>
-                                        <h4 className="text-[11px] font-black text-slate-900 dark:text-white uppercase tracking-tighter mt-1">{h.label}</h4>
+                                        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{h.sub}</span>
+                                        <h4 className="text-[11px] font-bold text-slate-900 dark:text-white uppercase tracking-tighter mt-1">{h.label}</h4>
                                     </div>
                                 </div>
 
                                 <div className="relative z-10 flex items-baseline gap-3">
                                     <span className="text-4xl font-black text-slate-950 dark:text-white tracking-tighter tabular-nums leading-none drop-shadow-sm">{h.val}</span>
                                     <div className="flex flex-col">
-                                        <span className={`text-[10px] font-black uppercase tracking-widest italic leading-none ${h.color} group-hover:translate-x-1 transition-transform`}>Units</span>
-                                        <span className="text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] mt-1.5">{h.desc}</span>
+                                        <span className={`text-[10px] font-bold uppercase tracking-widest italic leading-none ${h.color} group-hover:translate-x-1 transition-transform`}>Units</span>
+                                        <span className="text-[8px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.1em] mt-1.5">{h.desc}</span>
                                     </div>
                                 </div>
 
@@ -80,7 +80,7 @@ const StatsBoard = ({ stats, marketSentiment, onReportClick, opportunities }) =>
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
-                                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Strategic Intelligence</h3>
+                                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">Strategic Intelligence</h3>
                             </div>
                             <Activity size={16} className="text-blue-400" />
                         </div>

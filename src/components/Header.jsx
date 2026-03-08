@@ -93,13 +93,13 @@ const Header = ({
                         <div className={`absolute inset-y-0 h-full w-1/2 bg-blue-600 shadow-[0_4px_15px_rgba(37,99,235,0.4)] rounded-xl transition-all duration-500 ease-out ${activeAudience === 'incubator' ? 'translate-x-full' : 'translate-x-0'}`} />
                         <button
                             onClick={() => { setActiveAudience('startup'); setActiveSector('All Sectors'); }}
-                            className={`relative z-10 px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] w-24 sm:w-28 transition-colors cursor-pointer ${activeAudience === 'startup' ? 'text-white' : 'text-slate-400 dark:text-slate-600 hover:text-slate-900 dark:hover:text-slate-400'}`}
+                            className={`relative z-10 px-5 py-2 rounded-xl text-[9px] font-bold uppercase tracking-[0.2em] w-24 sm:w-28 transition-colors cursor-pointer ${activeAudience === 'startup' ? 'text-white' : 'text-slate-400 dark:text-slate-600 hover:text-slate-900 dark:hover:text-slate-400'}`}
                         >
                             STARTUP
                         </button>
                         <button
                             onClick={() => { setActiveAudience('incubator'); setActiveSector('All Sectors'); }}
-                            className={`relative z-10 px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] w-24 sm:w-28 transition-colors cursor-pointer ${activeAudience === 'incubator' ? 'text-white' : 'text-slate-400 dark:text-slate-600 hover:text-slate-900 dark:hover:text-slate-400'}`}
+                            className={`relative z-10 px-5 py-2 rounded-xl text-[9px] font-bold uppercase tracking-[0.2em] w-24 sm:w-28 transition-colors cursor-pointer ${activeAudience === 'incubator' ? 'text-white' : 'text-slate-400 dark:text-slate-600 hover:text-slate-900 dark:hover:text-slate-400'}`}
                         >
                             INSTITUTION
                         </button>

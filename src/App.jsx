@@ -1,11 +1,16 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './index.css';
 
-import { fetchOpportunities, triggerScraper, getScraperStatus, fetchResearchReport, triggerEmail, getEmailStatus } from './services/api';
 import { exportToCSV } from './utils/csvExporter';
-import { generateBriefing } from './utils/aiBriefing';
-import { SECTIONS, CATEGORIES } from './constants/tracker';
+import { fetchResearchReport } from './services/api';
+import { SECTIONS } from './constants/tracker';
 
+// Hooks
+import { useEcosystemData } from './hooks/useEcosystemData';
+import { useScraperSync } from './hooks/useScraperSync';
+import { useEmailDispatch } from './hooks/useEmailDispatch';
+
+// Components
 import Header from './components/Header';
 import StatsBoard from './components/StatsBoard';
 import CategoryNav from './components/CategoryNav';
@@ -17,7 +22,7 @@ import EcosystemTicker from './components/EcosystemTicker';
 import { Activity, X, TrendingUp, CheckCircle2, Cpu } from 'lucide-react';
 
 const App = () => {
-    // Theme setup
+    // 1. Theme setup
     const [theme, setTheme] = useState(() => {
         try {
             return localStorage.getItem('theme') || 'light';
@@ -31,197 +36,48 @@ const App = () => {
         try { localStorage.setItem('theme', theme); } catch (e) { }
     }, [theme]);
 
-    // Data State
-    const [opportunities, setOpportunities] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [stats, setStats] = useState({ total: 0, active: 0, closingSoon: 0, briefing: "Synthesizing ecosystem intelligence..." });
-    const [report, setReport] = useState(null);
+    // 2. Data & Ecosystem State (via Custom Hook)
+    const {
+        loading, error, report, setReport, lastUpdatedTs, loadData,
+        activeAudience, setActiveAudience,
+        activeCategory, setActiveCategory,
+        activeSector, setActiveSector,
+        activeStatus, setActiveStatus,
+        searchQuery, setSearchQuery,
+        currentView, setCurrentView,
+        addLog,
+        filtered, catCounts, activeStats, availableSectors, dynamicSentiment,
+        clearFilters
+    } = useEcosystemData();
+
+    // 3. Scraper Sync Engine (via Custom Hook)
+    const {
+        isRefreshing,
+        refreshSuccess,
+        elapsedTime,
+        handleRefresh,
+        getScraperMessage
+    } = useScraperSync(addLog, loadData);
+
+    // 4. Email Dispatch Engine (via Custom Hook)
+    const {
+        emailNotification,
+        handleEmailTrigger
+    } = useEmailDispatch(addLog);
+
+    // 5. UI Local State
     const [showReport, setShowReport] = useState(false);
-
-    // Operational State: Scraper
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    const [refreshSuccess, setRefreshSuccess] = useState(false);
-    const [serverStatus, setServerStatus] = useState(null);
-    const [syncStartTime, setSyncStartTime] = useState(null);
-    const [elapsedTime, setElapsedTime] = useState(0);
-
-    // Operational State: Email
-    const [emailNotification, setEmailNotification] = useState(null);
-    const [dispatching, setDispatching] = useState(false);
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
     const [isSyncingReport, setIsSyncingReport] = useState(false);
-    const [lastEmailDispatchTs, setLastEmailDispatchTs] = useState(() => {
-        try { return localStorage.getItem('lastEmailDispatchTs') || null; } catch (e) { return null; }
-    });
-
-    // Operational Logs (Telemetry)
-    const [operationalLogs, setOperationalLogs] = useState(() => {
-        try {
-            const stored = localStorage.getItem('operationalLogs');
-            return (stored ? JSON.parse(stored) : []).slice(0, 10);
-        } catch (e) { return []; }
-    });
-
-    useEffect(() => {
-        try { localStorage.setItem('operationalLogs', JSON.stringify(operationalLogs)); } catch (e) { }
-    }, [operationalLogs]);
-
-    const addLog = (event, type = 'info') => {
-        const newLog = {
-            id: Date.now(),
-            event,
-            type,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-        };
-        setOperationalLogs(prev => [newLog, ...prev].slice(0, 10));
-    };
-
-    // Navigation/Filter State
-    const [currentView, setCurrentView] = useState('dashboard');
-    const [activeAudience, setActiveAudience] = useState('startup');
-    const [activeCategory, setActiveCategory] = useState('all');
-    const [activeSector, setActiveSector] = useState('All Sectors');
-    const [activeStatus, setActiveStatus] = useState('all');
-    const [searchQuery, setSearchQuery] = useState('');
     const [showFloatingBar, setShowFloatingBar] = useState(false);
-    const [lastUpdatedTs, setLastUpdatedTs] = useState(() => {
-        try { return localStorage.getItem('lastUpdatedTs') || null; } catch (e) { return null; }
-    });
 
     const sectionRefs = useRef({});
     const categoryNavRef = useRef(null);
-
-    // 1. Data Loading
-    const loadData = async (isSilent = false) => {
-        if (!isSilent) setLoading(true);
-        try {
-            const data = await fetchOpportunities();
-            setOpportunities(data);
-
-            const [reportData] = await Promise.allSettled([fetchResearchReport()]);
-            if (reportData.status === 'fulfilled') setReport(reportData.value);
-
-            setError(null);
-
-            const nowTs = Date.now().toString();
-            setLastUpdatedTs(nowTs);
-            try { localStorage.setItem('lastUpdatedTs', nowTs); } catch (e) { }
-
-            if (isSilent) addLog(`Data Refresh Complete: ${data.length} records synced`, 'success');
-        } catch (err) {
-            setError("Ecosystem connection disrupted.");
-            addLog(`Sync Failure: API issue`, 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => { loadData(); }, []);
-
-    // 2. Scraper Engine
-    useEffect(() => {
-        let interval;
-        if (isRefreshing && !refreshSuccess) {
-            interval = setInterval(() => {
-                setElapsedTime(Math.floor((Date.now() - syncStartTime) / 1000));
-            }, 1000);
-        } else {
-            setElapsedTime(0);
-        }
-        return () => clearInterval(interval);
-    }, [isRefreshing, refreshSuccess, syncStartTime]);
-
-    const handleRefresh = async () => {
-        if (isRefreshing) return;
-        setIsRefreshing(true);
-        setRefreshSuccess(false);
-        setServerStatus('queued');
-        setSyncStartTime(Date.now());
-        addLog('Initiating Deep Web Research Sync...', 'info');
-
-        try {
-            await triggerScraper();
-            const pollInterval = setInterval(async () => {
-                try {
-                    const statusData = await getScraperStatus();
-                    setServerStatus(statusData.status);
-                    if (statusData.status === 'completed') {
-                        clearInterval(pollInterval);
-                        await loadData(true);
-                        setRefreshSuccess(true);
-                        setTimeout(() => {
-                            setIsRefreshing(false);
-                            setRefreshSuccess(false);
-                            setServerStatus(null);
-                        }, 3000);
-                    }
-                } catch (e) { console.error('Polling error:', e); }
-            }, 5000);
-        } catch (err) {
-            addLog(`Trigger failed`, 'error');
-            setIsRefreshing(false);
-        }
-    };
-
-    // 3. Email Dispatch Engine
-    const handleEmailTrigger = async (targetEmails) => {
-        try {
-            setDispatching(true);
-            setEmailNotification({ type: 'initializing', message: 'Connecting to Dispatch Proxy...' });
-            addLog(`Initiating dispatch relay to stakeholder`, 'info');
-
-            let baselineRunId;
-            try {
-                const initialStatus = await getEmailStatus();
-                baselineRunId = initialStatus?.run_id;
-            } catch (e) { }
-
-            await triggerEmail(targetEmails);
-            setEmailNotification({ type: 'in_progress', message: 'Synthesizing Strategic Briefing...' });
-
-            let attempts = 0;
-            const pollInterval = setInterval(async () => {
-                attempts++;
-                if (attempts > 20) {
-                    clearInterval(pollInterval);
-                    setDispatching(false);
-                    setEmailNotification({ type: 'error', message: 'Dispatch status unconfirmed.' });
-                    addLog('Dispatch Timeout', 'error');
-                    setTimeout(() => setEmailNotification(null), 5000);
-                    return;
-                }
-
-                try {
-                    const statusData = await getEmailStatus();
-                    if (statusData.run_id && statusData.run_id !== baselineRunId) {
-                        if (statusData.status === 'completed') {
-                            clearInterval(pollInterval);
-                            setDispatching(false);
-                            const nowTs = Date.now().toString();
-                            setLastEmailDispatchTs(nowTs);
-                            try { localStorage.setItem('lastEmailDispatchTs', nowTs); } catch (e) { }
-
-                            setEmailNotification({ type: 'success', message: 'Intelligence briefing dispatched!' });
-                            addLog(`Briefing Dispatched successfully`, 'success');
-                            setTimeout(() => setEmailNotification(null), 8000);
-                        }
-                    }
-                } catch (e) { }
-            }, 5000);
-        } catch (err) {
-            setDispatching(false);
-            setEmailNotification({ type: 'error', message: 'Failed to initiate dispatch.' });
-            addLog('Critical Dispatch Failure', 'error');
-            setTimeout(() => setEmailNotification(null), 5000);
-        }
-    };
 
     useEffect(() => {
         const handleScroll = () => {
             if (categoryNavRef.current) {
                 const rect = categoryNavRef.current.getBoundingClientRect();
-                // 72px is the header height where CategoryNav sticks
                 setShowFloatingBar(rect.top <= 72);
             }
         };
@@ -229,9 +85,7 @@ const App = () => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const handleDownloadPDF = () => {
-        window.print();
-    };
+    const handleDownloadPDF = () => window.print();
 
     const handleSyncIntelligence = async () => {
         try {
@@ -251,119 +105,13 @@ const App = () => {
 
     const scrollToFilters = () => {
         if (categoryNavRef.current) {
-            const yOffset = -72; // Header height
+            const yOffset = -72;
             const y = categoryNavRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
             window.scrollTo({ top: y, behavior: 'smooth' });
         }
     };
 
-    const scrollToSection = (key) => {
-        const el = sectionRefs.current[key];
-        if (el) {
-            const yOffset = -220;
-            const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
-        }
-    };
-
-    const formatRelTime = (rawTs) => {
-        if (!rawTs) return 'Never';
-        try {
-            const diff = Math.floor((Date.now() - parseInt(rawTs)) / 1000);
-            if (diff < 60) return 'Just now';
-            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-            return 'Recently';
-        } catch (e) { return 'Never'; }
-    };
-
-    const getScraperMessage = () => {
-        if (serverStatus === 'completed') return "Finalizing Institutional Report...";
-        if (elapsedTime < 5) return "Performing Strategic Synthesis...";
-        if (elapsedTime < 15) return "Auditing Portfolio Portals...";
-        if (elapsedTime < 25) return "Extracting Mandate Data...";
-        return "Synthesizing Intelligence...";
-    };
-
-    const clearFilters = () => {
-        setSearchQuery('');
-        setActiveCategory('all');
-        setActiveSector('All Sectors');
-        setActiveStatus('all');
-        addLog('Global Filters Reset', 'info');
-    };
-
     const isFiltered = searchQuery !== '' || activeCategory !== 'all' || activeSector !== 'All Sectors' || activeStatus !== 'all';
-
-    // 4. Dynamic Insights & Stats Calculation
-    const { filtered, catCounts, activeStats, availableSectors, dynamicSentiment } = useMemo(() => {
-        // Base matching logic
-        const matches = (o, filters = {}) => {
-            const {
-                audience = activeAudience,
-                category = activeCategory,
-                sector = activeSector,
-                status = activeStatus,
-                search = searchQuery,
-                view = currentView
-            } = filters;
-
-            const matchesAudience = audience === 'all' || (o.targetAudience || []).includes(audience);
-            const matchesCategory = category === 'all' || (o.category || '').toLowerCase() === category;
-            const matchesSector = sector === 'All Sectors' || (o.sectors || []).includes(sector);
-            const matchesStatus = status === 'all' ||
-                (status === 'Open' ? ['Open', 'Closing Soon'].includes(o.status) : o.status === status);
-            const matchesSearch = !search ||
-                (o.name || '').toLowerCase().includes(search.toLowerCase()) ||
-                (o.description || '').toLowerCase().includes(search.toLowerCase());
-
-            const isArchive = ['Closed', 'Verify Manually'].includes(o.status);
-            const matchesView = view === 'dashboard' ? !isArchive : isArchive;
-
-            return matchesAudience && matchesCategory && matchesSector && matchesStatus && matchesSearch && matchesView;
-        };
-
-        // 1. Filtered Opportunities (The ones actually displayed)
-        const filteredResult = opportunities.filter(o => matches(o));
-
-        // 2. Category Counts
-        // For each category, count items that match all CURRENT active filters EXCEPT the category filter itself
-        // This allows the user to see how many items exist in other categories given their other filter settings (search, audience, etc.)
-        const counts = {};
-        CATEGORIES.forEach(c => {
-            counts[c.key] = opportunities.filter(o => matches(o, { category: c.key })).length;
-        });
-
-        // 3. Stats for StatsBoard
-        // Stats should reflect the current context (audience, search, etc.)
-        const activeItems = opportunities.filter(o => matches(o, { status: 'all', view: 'dashboard' }));
-        const statsObj = {
-            total: activeItems.length,
-            active: activeItems.filter(o => ['Open', 'Rolling', 'Closing Soon'].includes(o.status)).length,
-            closingSoon: activeItems.filter(o => o.status === 'Closing Soon').length,
-            briefing: generateBriefing(activeItems)
-        };
-
-        // 4. Available Sectors
-        const sectors = Array.from(new Set(
-            opportunities
-                .filter(o => matches(o, { sector: 'All Sectors' }))
-                .flatMap(o => o.sectors || [])
-        )).sort();
-
-        // 5. Market Sentiment
-        const sentiment = (statsObj.active / (statsObj.total || 1)) > 0.5
-            ? { label: 'Aggressive / Bullish', color: 'text-emerald-400', bg: 'bg-emerald-500/10' }
-            : { label: 'Transition / Stable', color: 'text-blue-400', bg: 'bg-blue-500/10' };
-
-        return {
-            filtered: filteredResult,
-            catCounts: counts,
-            activeStats: statsObj,
-            availableSectors: sectors,
-            dynamicSentiment: sentiment
-        };
-    }, [opportunities, activeAudience, activeCategory, activeSector, activeStatus, searchQuery, currentView]);
 
     if (loading) return (
         <div className={`flex flex-col items-center justify-center min-h-screen ${theme === 'dark' ? 'bg-slate-950 text-blue-500' : 'bg-slate-50 text-blue-600'} font-black tracking-[0.5em] uppercase text-center px-4 transition-colors duration-500`}>
@@ -381,7 +129,6 @@ const App = () => {
     return (
         <div className={`min-h-screen transition-colors duration-1000 selection:bg-blue-500/30 ${currentView === 'archive' ? 'bg-slate-100 dark:bg-slate-900 arclight-gradient' : 'bg-slate-50 dark:bg-slate-950'}`}>
 
-            {/* Operational Toasts */}
             {isRefreshing && (
                 <div className="fixed top-24 right-8 z-[110] animate-in scale-95 origin-right">
                     <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-blue-500/20 shadow-2xl rounded-2xl p-4 w-[280px]">
@@ -410,6 +157,7 @@ const App = () => {
                     </div>
                 </div>
             )}
+
             <EcosystemTicker opportunities={filtered} lastUpdatedTs={lastUpdatedTs} />
 
             <Header
@@ -448,12 +196,7 @@ const App = () => {
                             title={currentView === 'archive' ? "Archives Empty" : "No Matches"}
                             message="Adjust filters or refresh the ecosystem research."
                             actionLabel="View All Opportunities"
-                            onAction={() => {
-                                setSearchQuery('');
-                                setActiveCategory('all');
-                                setActiveSector('All Sectors');
-                                setActiveStatus('all');
-                            }}
+                            onAction={clearFilters}
                         />
                     ) : (
                         <div className="space-y-12">
@@ -482,7 +225,6 @@ const App = () => {
                 setCurrentView={setCurrentView}
             />
 
-            {/* Re-wired Email Modal from Header logic */}
             {isEmailModalOpen && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm animate-in fade-in" onClick={() => setIsEmailModalOpen(false)} />
@@ -510,7 +252,6 @@ const App = () => {
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 print-report-active">
                     <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-md animate-in fade-in no-print" onClick={() => setShowReport(false)}></div>
                     <div id="report-modal-content" className="relative w-full max-w-5xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-[40px] overflow-hidden shadow-2xl animate-shutter flex flex-col max-h-[90vh]">
-                        {/* Intelligence Header */}
                         <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950/50">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-blue-500 rounded-2xl shadow-[0_0_20px_rgba(59,130,246,0.5)]">
@@ -531,10 +272,7 @@ const App = () => {
                             </button>
                         </div>
 
-                        {/* Intelligence Content */}
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-8">
-
-                            {/* PRINT-ONLY INSTITUTIONAL HEADER */}
                             <div className="hidden print:block mb-12 border-b-2 border-slate-900 pb-8">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-6">
@@ -552,8 +290,6 @@ const App = () => {
                             </div>
 
                             <div className="max-w-4xl mx-auto space-y-12 pb-8">
-
-                                {/* 1. Executive Summary */}
                                 <section>
                                     <div className="flex items-center gap-2 mb-6">
                                         <div className="w-1 h-4 bg-blue-500 rounded-full" />
@@ -564,7 +300,6 @@ const App = () => {
                                     </p>
                                 </section>
 
-                                {/* 2. Key Trends Analysis */}
                                 <section>
                                     <div className="flex items-center gap-2 mb-8">
                                         <div className="w-1 h-4 bg-emerald-500 rounded-full" />
@@ -587,7 +322,6 @@ const App = () => {
                                     </div>
                                 </section>
 
-                                {/* 3. Actionable Directives */}
                                 <section>
                                     <div className="flex items-center gap-2 mb-8">
                                         <div className="w-1 h-4 bg-amber-500 rounded-full" />
@@ -607,7 +341,6 @@ const App = () => {
                                     </div>
                                 </section>
 
-                                {/* PRINT-ONLY DISCLOSURE */}
                                 <div className="hidden print:block pt-12 border-t border-slate-200 mt-12">
                                     <p className="text-[9px] font-bold text-slate-400 leading-relaxed italic">
                                         Disclaimer: This intelligence report is synthesized by the ABIF Neural Engine for strategic informational purposes. Real-time verification with original funder mandates is mandatory before capital engagement. All data corresponds to the research cycle recorded at the time of generation.
@@ -616,7 +349,6 @@ const App = () => {
                             </div>
                         </div>
 
-                        {/* Intelligence Footer */}
                         <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-3">
                                 <Cpu size={14} className="text-blue-500" />
@@ -636,6 +368,7 @@ const App = () => {
                     </div>
                 </div>
             )}
+
             {showFloatingBar && currentView === 'dashboard' && (
                 <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-5 duration-500 pointer-events-auto">
                     <div className="flex items-center p-1 bg-slate-950/80 dark:bg-slate-900/95 backdrop-blur-3xl border border-white/10 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.5)]">

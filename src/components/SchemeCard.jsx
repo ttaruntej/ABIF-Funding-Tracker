@@ -10,7 +10,7 @@ const SchemeCard = ({ scheme, showCategoryBadge, isArchivedMode }) => {
     const catMeta = CATEGORIES.find(c => c.key === scheme.category);
     const statusStyle = STATUS_COLORS[scheme.status] || 'bg-slate-800 text-slate-400 border-slate-700';
 
-    // AI Confidence Logic
+    // Neural Match Logic (Relabeled for Institutional Integrity)
     const generateConfidence = (name) => {
         let hash = 0;
         for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -39,10 +39,17 @@ const SchemeCard = ({ scheme, showCategoryBadge, isArchivedMode }) => {
                     {scheme.status}
                 </div>
 
-                <div className="flex flex-col items-end">
+                <div className="flex flex-col items-end gap-2">
                     <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm ${isArchivedMode ? 'bg-slate-100 dark:bg-slate-900/50' : 'bg-white/80 dark:bg-slate-800/80'}`}>
                         <DollarSign size={12} className={isArchivedMode ? 'text-slate-400' : 'text-emerald-500'} />
                         <span className={`text-[12px] font-black tracking-tight ${isArchivedMode ? 'text-slate-500' : 'text-slate-900 dark:text-white'}`}>{scheme.maxAward}</span>
+                    </div>
+                    {/* Data Source Badge */}
+                    <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest border ${scheme.dataSource === 'integrity-guard'
+                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
+                        : 'bg-blue-500/10 border-blue-500/20 text-blue-600'
+                        }`}>
+                        {scheme.dataSource === 'integrity-guard' ? 'INSTITUTIONAL' : 'AI-DISCOVERED'}
                     </div>
                 </div>
             </div>
@@ -58,7 +65,7 @@ const SchemeCard = ({ scheme, showCategoryBadge, isArchivedMode }) => {
 
                 <div className="flex items-center gap-2 mb-6">
                     <Target size={12} className="text-slate-500 shrink-0" />
-                    <span className="text-[11px] font-black text-slate-500 dark:text-slate-600 uppercase tracking-widest truncate">{scheme.body}</span>
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-600 uppercase tracking-widest truncate">{scheme.body}</span>
                 </div>
 
                 {/* Meta Tags (Nano Style) */}
@@ -70,15 +77,15 @@ const SchemeCard = ({ scheme, showCategoryBadge, isArchivedMode }) => {
                         </span>
                     )}
                     {scheme.stages?.slice(0, 1).map(s => (
-                        <span key={s} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-[9px] font-black text-slate-500 dark:text-slate-500 uppercase tracking-widest">{s}</span>
+                        <span key={s} className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-[9px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-widest">{s}</span>
                     ))}
                     {scheme.sectors?.slice(0, 1).map(s => (
-                        <span key={s} className={`px-2.5 py-1 rounded-lg border text-[9px] font-black uppercase tracking-widest ${isArchivedMode ? 'border-slate-300 dark:border-slate-800 text-slate-400' : 'bg-blue-500/5 border-blue-500/20 text-blue-500'
+                        <span key={s} className={`px-2.5 py-1 rounded-lg border text-[9px] font-bold uppercase tracking-widest ${isArchivedMode ? 'border-slate-300 dark:border-slate-800 text-slate-400' : 'bg-blue-500/5 border-blue-500/20 text-blue-500'
                             }`}>{s}</span>
                     ))}
                 </div>
 
-                <p className={`text-[13px] leading-relaxed line-clamp-3 mb-8 font-semibold italic ${isArchivedMode ? 'text-slate-400 dark:text-slate-600' : 'text-slate-700 dark:text-slate-400'
+                <p className={`text-[13px] leading-relaxed line-clamp-3 mb-8 font-medium italic ${isArchivedMode ? 'text-slate-400 dark:text-slate-600' : 'text-slate-700 dark:text-slate-400'
                     }`}>
                     {scheme.description}
                 </p>
@@ -90,20 +97,20 @@ const SchemeCard = ({ scheme, showCategoryBadge, isArchivedMode }) => {
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                         <Calendar size={12} className="text-slate-400" />
-                        <span className={`text-[10px] font-black uppercase tracking-tighter ${isArchivedMode ? 'text-slate-400' : 'text-slate-500'}`}>Deadline: </span>
-                        <span className={`text-[11px] font-black ${isArchivedMode ? 'text-slate-500' : 'text-slate-800 dark:text-slate-200'}`}>{scheme.deadline}</span>
+                        <span className={`text-[10px] font-bold uppercase tracking-tighter ${isArchivedMode ? 'text-slate-400' : 'text-slate-500'}`}>Deadline: </span>
+                        <span className={`text-[11px] font-bold ${isArchivedMode ? 'text-slate-500' : 'text-slate-800 dark:text-slate-200'}`}>{scheme.deadline}</span>
                     </div>
                     {/* Verification Pulse */}
                     <div className="flex items-center gap-2">
                         {isVerified ? (
                             <>
                                 <ShieldCheck size={12} className={isArchivedMode ? 'text-slate-400' : 'text-emerald-500'} />
-                                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isArchivedMode ? 'text-slate-400' : 'text-emerald-500'}`}>Verified ({confidence}%)</span>
+                                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isArchivedMode ? 'text-slate-400' : 'text-emerald-500'}`}>Neural Match ({confidence}%)</span>
                             </>
                         ) : (
                             <>
                                 <AlertTriangle size={12} className={isArchivedMode ? 'text-slate-400' : 'text-amber-500'} />
-                                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isArchivedMode ? 'text-slate-400' : 'text-amber-500'}`}>Probable ({confidence}%)</span>
+                                <span className={`text-[9px] font-black uppercase tracking-[0.2em] ${isArchivedMode ? 'text-slate-400' : 'text-amber-500'}`}>Probable Match ({confidence}%)</span>
                             </>
                         )}
                     </div>
