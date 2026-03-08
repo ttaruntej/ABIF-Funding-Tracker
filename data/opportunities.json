@@ -1439,5 +1439,66 @@
     "lastScanned": "2026-03-07T16:21:14.960Z",
     "linkStatus": "verified",
     "lastScraped": "2026-03-08T06:41:51.751Z"
+  },
+  {
+    "name": "SIDBI SRIJAN Revolving Fund",
+    "body": "SIDBI",
+    "maxAward": "Up to ₹1 Crore",
+    "deadline": "Rolling",
+    "link": "https://www.sidbi.in/en/srijan",
+    "description": "Revolving fund for technology innovation supporting startups and MSMEs with debt financing.",
+    "targetAudience": [
+      "startup"
+    ],
+    "category": "national",
+    "linkStatus": "broken",
+    "dataSource": "integrity-guard",
+    "lastScraped": "2026-03-08T07:22:03.304Z"
+  },
+  {
+    "name": "Atal Incubation Centre (AIC) Grant",
+    "body": "AIM (NITI Aayog)",
+    "maxAward": "Up to ₹10 Crores",
+    "deadline": "Check Portal",
+    "link": "https://aim.gov.in/aic.php",
+    "description": "Establishment grant for new incubation centres to support the Indian innovation ecosystem.",
+    "targetAudience": [
+      "incubator"
+    ],
+    "category": "national",
+    "linkStatus": "verified",
+    "dataSource": "integrity-guard",
+    "lastScraped": "2026-03-08T07:22:05.935Z"
+  },
+  {
+    "name": "DST NIDHI - TBI Support",
+    "body": "DST (MoST)",
+    "maxAward": "Varies",
+    "deadline": "Varies",
+    "link": "https://nidhi.dst.gov.in/",
+    "description": "National initiative for developing and harnessing innovations via Technology Business Incubators.",
+    "targetAudience": [
+      "incubator"
+    ],
+    "category": "national",
+    "linkStatus": "verified",
+    "dataSource": "integrity-guard",
+    "lastScraped": "2026-03-08T07:22:09.344Z"
+  },
+  {
+    "name": "IIG - CSR Opportunities Portal",
+    "body": "Invest India",
+    "maxAward": "CSR Grants",
+    "deadline": "Rolling",
+    "link": "https://indiainvestmentgrid.gov.in/opportunities/csr",
+    "description": "Official portal connecting Section 8 Incubators with corporate CSR mandates.",
+    "targetAudience": [
+      "incubator",
+      "startup"
+    ],
+    "category": "csr",
+    "linkStatus": "verified",
+    "dataSource": "integrity-guard",
+    "lastScraped": "2026-03-08T07:22:12.803Z"
   }
 ]
