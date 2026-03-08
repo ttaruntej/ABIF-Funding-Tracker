@@ -183,66 +183,76 @@ input,
     cursor: pointer !important;
 }
 
-/* PRINT ARCHITECTURE - Bulletproof version */
+/* 
+   ULTIMATE PRINT FIX
+   Eliminates white pages by removing background content from the flow entirely.
+*/
 @media print {
 
-    /* Hide standard UI elements */
+    /* Step 1: Hide all known background elements */
     header,
     footer,
+    main,
     nav,
-    aside,
     .TacticalSpear,
-    .no-print,
-    button,
     .StatsBoard,
     .CategoryNav,
-    .SchemeCard {
+    .no-print,
+    button,
+    svg {
         display: none !important;
     }
 
-    /* Target everything that ISN'T our report content and hide it */
-    body>div:not(.print-report-active) {
-        display: none !important;
-    }
-
-    /* Force the body and html to allow full height content */
+    /* Step 2: Reset shell containers */
     html,
     body {
         height: auto !important;
-        overflow: visible !important;
-        background: white !important;
-    }
-
-    /* Fix the modal wrapper to be a normal block */
-    .print-report-active {
-        position: static !important;
-        display: block !important;
-        width: 100% !important;
-        height: auto !important;
+        min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
         background: white !important;
+        overflow: visible !important;
+    }
+
+    #root {
+        position: static !important;
+        display: block !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Step 3: Target the active report portal */
+    .print-report-active {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        transform: none !important;
+        z-index: 1000 !important;
+        overflow: visible !important;
     }
 
     #report-modal-content {
-        position: static !important;
+        position: relative !important;
         display: block !important;
         width: 100% !important;
         max-width: none !important;
+        height: auto !important;
+        min-height: 0 !important;
         margin: 0 !important;
-        padding: 20px !important;
-        box-shadow: none !important;
-        border: none !important;
+        padding: 2.5rem !important;
         background: white !important;
         color: black !important;
+        box-shadow: none !important;
+        border: none !important;
         overflow: visible !important;
-        height: auto !important;
-        min-height: 100vh;
-    }
-
-    #report-modal-content * {
-        background-color: transparent !important;
-        color: black !important;
+        border-radius: 0 !important;
     }
 
     #report-modal-content .overflow-y-auto {
@@ -251,11 +261,18 @@ input,
         max-height: none !important;
     }
 
+    /* Step 4: Page breaking logic */
     section {
         page-break-inside: avoid !important;
-        margin-bottom: 2.5rem !important;
+        margin-bottom: 3.5rem !important;
         display: block !important;
         clear: both !important;
+    }
+
+    h2,
+    h3,
+    h4 {
+        page-break-after: avoid !important;
     }
 
     .grid {
@@ -263,11 +280,20 @@ input,
     }
 
     .grid>div {
-        margin-bottom: 1.5rem !important;
+        margin-bottom: 2rem !important;
         page-break-inside: avoid !important;
     }
 
-    /* Ensure high contrast for text */
+    /* Force visibility and high contrast */
+    body * {
+        visibility: hidden;
+    }
+
+    .print-report-active,
+    .print-report-active * {
+        visibility: visible !important;
+    }
+
     .text-slate-400,
     .text-slate-500,
     .text-slate-600,
