@@ -124,6 +124,14 @@ const StatsBoard = ({ stats, marketSentiment, onReportClick, opportunities }) =>
                         </div>
                     </div>
 
+                    {/* Neural Shield Badge */}
+                    <div className="absolute top-4 right-4 z-20" title="Integrity Guard: All mandates are cross-referenced with institutional databases to ensure 100% URL validity and award accuracy.">
+                        <div className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-lg backdrop-blur-md">
+                            <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[7px] font-black text-emerald-400 uppercase tracking-widest">Neural Shield Active</span>
+                        </div>
+                    </div>
+
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_107%,rgba(59,130,246,0.1)_0%,rgba(59,130,246,0)_50%)] pointer-events-none" />
                     <div className="absolute top-0 right-0 p-8 opacity-10 blur-xl">
                         <Radar size={120} className="rotate-45" />

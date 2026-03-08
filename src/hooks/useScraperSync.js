@@ -20,12 +20,23 @@ export const useScraperSync = (addLog, loadData) => {
         return () => clearInterval(interval);
     }, [isRefreshing, refreshSuccess, syncStartTime]);
 
+    const [cooldown, setCooldown] = useState(0);
+
+    useEffect(() => {
+        let timer;
+        if (cooldown > 0) {
+            timer = setInterval(() => setCooldown(c => c - 1), 1000);
+        }
+        return () => clearInterval(timer);
+    }, [cooldown]);
+
     const handleRefresh = async () => {
-        if (isRefreshing) return;
+        if (isRefreshing || cooldown > 0) return;
         setIsRefreshing(true);
         setRefreshSuccess(false);
         setServerStatus('queued');
         setSyncStartTime(Date.now());
+        setCooldown(60); // Start 60s cooldown
         addLog('Initiating Deep Web Research Sync...', 'info');
 
         try {
@@ -60,11 +71,17 @@ export const useScraperSync = (addLog, loadData) => {
         return "Synthesizing Intelligence...";
     };
 
+    const syncProgress = isRefreshing && !refreshSuccess
+        ? Math.min(98, Math.floor((elapsedTime / 45) * 100))
+        : refreshSuccess ? 100 : 0;
+
     return {
         isRefreshing,
         refreshSuccess,
         serverStatus,
         elapsedTime,
+        syncProgress,
+        cooldown,
         handleRefresh,
         getScraperMessage
     };

@@ -120,6 +120,7 @@ const SchemeCard = ({ scheme, showCategoryBadge, isArchivedMode }) => {
                     href={scheme.link}
                     target="_blank"
                     rel="noopener noreferrer"
+                    title={isArchivedMode ? "View Historical Record" : "Visit Official Portal"}
                     className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all duration-500 ${isArchivedMode
                         ? 'bg-slate-300/30 dark:bg-slate-900/50 text-slate-500 border border-slate-400/20'
                         : 'bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 text-slate-950 dark:text-white hover:bg-slate-950 dark:hover:bg-white hover:text-white dark:hover:text-slate-950 shadow-xl'}`}

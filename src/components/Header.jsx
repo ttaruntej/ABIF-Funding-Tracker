@@ -34,7 +34,7 @@ const Header = ({
                         <img src="https://abif.iitkgp.ac.in/logos/logo.png" alt="ABIF" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
                         <div className="absolute inset-0 bg-blue-500/10 blur-lg rounded-full" />
                     </div>
-                    <div className="hidden lg:flex flex-col text-left leading-none">
+                    <div className="hidden lg:flex flex-col text-left leading-none group/intel relative" title="Funding Intelligence Core">
                         <span className="text-[10px] font-black tracking-tighter text-slate-900 dark:text-white uppercase italic">Intel</span>
                     </div>
                 </div>

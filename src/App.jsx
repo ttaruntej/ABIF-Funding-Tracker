@@ -131,14 +131,26 @@ const App = () => {
 
             {isRefreshing && (
                 <div className="fixed top-24 right-8 z-[110] animate-in scale-95 origin-right">
-                    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-blue-500/20 shadow-2xl rounded-2xl p-4 w-[280px]">
-                        <div className="flex items-center gap-4">
-                            <div className={`w-8 h-8 rounded-full border-2 border-slate-700 border-t-blue-500 ${refreshSuccess ? '' : 'animate-spin'}`}>
-                                {refreshSuccess && '✓'}
+                    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-blue-500/20 shadow-2xl rounded-[24px] p-5 w-[300px] overflow-hidden relative">
+                        {/* Progress Background Pulse */}
+                        {!refreshSuccess && (
+                            <div className="absolute bottom-0 left-0 h-1 bg-blue-500/30 w-full" />
+                        )}
+                        <div
+                            className={`absolute bottom-0 left-0 h-1 bg-blue-500 transition-all duration-1000 ease-out`}
+                            style={{ width: `${syncProgress}%` }}
+                        />
+
+                        <div className="flex items-center gap-4 mb-3">
+                            <div className={`w-8 h-8 rounded-full border-2 border-slate-700/50 flex items-center justify-center transition-all ${refreshSuccess ? 'bg-emerald-500 border-emerald-500 scale-110' : 'border-t-blue-500 animate-spin'}`}>
+                                {refreshSuccess ? <CheckCircle2 size={16} className="text-white" /> : <Activity size={12} className="text-blue-500" />}
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-widest">{refreshSuccess ? 'Sync Complete' : 'Researching...'}</h3>
-                                <p className="text-[8px] text-slate-500 font-bold uppercase mt-1">{refreshSuccess ? 'Ecosystem Updated' : getScraperMessage()}</p>
+                                <div className="flex justify-between items-center">
+                                    <h3 className="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-widest">{refreshSuccess ? 'Sync Complete' : 'Researching...'}</h3>
+                                    {!refreshSuccess && <span className="text-[9px] font-mono font-bold text-blue-500">{syncProgress}%</span>}
+                                </div>
+                                <p className="text-[8px] text-slate-500 font-bold uppercase mt-1 truncate">{refreshSuccess ? 'Ecosystem Updated' : getScraperMessage()}</p>
                             </div>
                         </div>
                     </div>
@@ -217,8 +229,10 @@ const App = () => {
             <TacticalSpear
                 handleRefresh={handleRefresh}
                 isRefreshing={isRefreshing}
+                refreshCooldown={cooldown}
                 handleExportCSV={() => exportToCSV(filtered)}
                 onEmailClick={() => setIsEmailModalOpen(true)}
+                emailCooldown={emailCooldown}
                 theme={theme}
                 toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 currentView={currentView}

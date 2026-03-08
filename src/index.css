@@ -339,3 +339,11 @@ input,
         margin-top: 2rem !important;
     }
 }
+
+/* Mobile Performance: Blur Optimization */
+@media (max-width: 639px) {
+    [class*="backdrop-blur"] {
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+    }
+}

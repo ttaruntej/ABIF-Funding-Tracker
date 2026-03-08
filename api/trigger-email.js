@@ -28,7 +28,19 @@ export default async function handler(req, res) {
     };
 
     if (req.method === 'POST') {
-        const { target_emails } = req.body || {};
+        let { target_emails } = req.body || {};
+
+        // Basic Sanitization: Extract valid emails only
+        if (target_emails) {
+            const emailArray = target_emails.split(',')
+                .map(e => e.trim())
+                .filter(e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+            target_emails = emailArray.slice(0, 10).join(','); // Limit to 10 recipients for safety
+        }
+
+        if (!target_emails) {
+            return res.status(400).json({ error: 'At least one valid email recipient is required' });
+        }
 
         try {
             const response = await fetch(
@@ -39,7 +51,7 @@ export default async function handler(req, res) {
                     body: JSON.stringify({
                         ref: 'main',
                         inputs: {
-                            target_emails: target_emails || ''
+                            target_emails: target_emails
                         }
                     }),
                 }

@@ -8,9 +8,25 @@ export const useEmailDispatch = (addLog) => {
         try { return localStorage.getItem('lastEmailDispatchTs') || null; } catch (e) { return null; }
     });
 
+    const [emailCooldown, setEmailCooldown] = useState(0);
+
     const handleEmailTrigger = async (targetEmails) => {
+        if (dispatching || emailCooldown > 0) return;
         try {
             setDispatching(true);
+            setEmailCooldown(60); // Start 60s cooldown
+
+            // Cooldown ticker
+            const cooldownTimer = setInterval(() => {
+                setEmailCooldown(c => {
+                    if (c <= 1) {
+                        clearInterval(cooldownTimer);
+                        return 0;
+                    }
+                    return c - 1;
+                });
+            }, 1000);
+
             setEmailNotification({ type: 'initializing', message: 'Connecting to Dispatch Proxy...' });
             addLog(`Initiating dispatch relay to stakeholder`, 'info');
 
@@ -63,6 +79,7 @@ export const useEmailDispatch = (addLog) => {
     return {
         emailNotification,
         dispatching,
+        emailCooldown,
         lastEmailDispatchTs,
         handleEmailTrigger
     };
