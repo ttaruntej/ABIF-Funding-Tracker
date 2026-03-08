@@ -49,6 +49,7 @@ const App = () => {
     const [emailNotification, setEmailNotification] = useState(null);
     const [dispatching, setDispatching] = useState(false);
     const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+    const [isSyncingReport, setIsSyncingReport] = useState(false);
     const [lastEmailDispatchTs, setLastEmailDispatchTs] = useState(() => {
         try { return localStorage.getItem('lastEmailDispatchTs') || null; } catch (e) { return null; }
     });
@@ -233,13 +234,17 @@ const App = () => {
 
     const handleSyncIntelligence = async () => {
         try {
+            setIsSyncingReport(true);
+            addLog('Synching Neural Report...', 'info');
             const freshReport = await fetchResearchReport();
             if (freshReport) {
                 setReport(freshReport);
-                addLog('Intelligence Refreshed', 'success');
+                addLog('Intelligence Refreshed from Data Core', 'success');
             }
         } catch (e) {
-            addLog('Report Refresh Failed', 'error');
+            addLog('Report Sync Fault', 'error');
+        } finally {
+            setTimeout(() => setIsSyncingReport(false), 2000);
         }
     };
 
@@ -483,7 +488,7 @@ const App = () => {
             )}
 
             {showReport && report && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 print-report-active">
                     <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-md animate-in fade-in no-print" onClick={() => setShowReport(false)}></div>
                     <div id="report-modal-content" className="relative w-full max-w-5xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-[40px] overflow-hidden shadow-2xl animate-shutter flex flex-col max-h-[90vh]">
                         {/* Intelligence Header */}
@@ -575,7 +580,13 @@ const App = () => {
                             </div>
                             <div className="flex gap-6 no-print">
                                 <button onClick={handleDownloadPDF} className="text-[10px] font-black text-slate-400 hover:text-blue-500 uppercase tracking-widest transition-colors cursor-pointer">Download PDF</button>
-                                <button onClick={handleSyncIntelligence} className="text-[10px] font-black text-slate-400 hover:text-blue-500 uppercase tracking-widest transition-colors cursor-pointer">Sync Intelligence</button>
+                                <button
+                                    onClick={handleSyncIntelligence}
+                                    disabled={isSyncingReport}
+                                    className={`text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${isSyncingReport ? 'text-blue-500 animate-pulse' : 'text-slate-400 hover:text-blue-500'}`}
+                                >
+                                    {isSyncingReport ? 'Syncing...' : 'Sync Intelligence'}
+                                </button>
                             </div>
                         </div>
                     </div>

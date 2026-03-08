@@ -178,73 +178,84 @@ html {
 button,
 a,
 input,
-textarea,
-select,
 [role="button"],
 .cursor-pointer {
     cursor: pointer !important;
 }
 
+/* PRINT ARCHITECTURE - Bulletproof version */
 @media print {
 
-    /* Critical: Completely remove everything else from the layout to avoid white pages. */
-    body>*:not(.print-container-root) {
+    /* Hide standard UI elements */
+    header,
+    footer,
+    nav,
+    aside,
+    .TacticalSpear,
+    .no-print,
+    button,
+    .StatsBoard,
+    .CategoryNav,
+    .SchemeCard {
         display: none !important;
     }
 
-    /* Root of the portal/modal that we want to keep */
-    #report-modal-content {
-        visibility: visible !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
+    /* Target everything that ISN'T our report content and hide it */
+    body>div:not(.print-report-active) {
+        display: none !important;
+    }
+
+    /* Force the body and html to allow full height content */
+    html,
+    body {
+        height: auto !important;
+        overflow: visible !important;
+        background: white !important;
+    }
+
+    /* Fix the modal wrapper to be a normal block */
+    .print-report-active {
+        position: static !important;
+        display: block !important;
         width: 100% !important;
+        height: auto !important;
         margin: 0 !important;
         padding: 0 !important;
         background: white !important;
-        color: black !important;
+    }
+
+    #report-modal-content {
+        position: static !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 20px !important;
         box-shadow: none !important;
         border: none !important;
+        background: white !important;
+        color: black !important;
         overflow: visible !important;
-        max-height: none !important;
         height: auto !important;
+        min-height: 100vh;
     }
 
-    /* Force background to transparent for visible elements */
     #report-modal-content * {
         background-color: transparent !important;
-        visibility: visible !important;
         color: black !important;
-    }
-
-    /* Specifically target containers that might have fixed positioning or overflow scroll */
-    .fixed,
-    .inset-0 {
-        position: absolute !important;
-        display: block !important;
-        background: white !important;
-        overflow: visible !important;
-        height: auto !important;
     }
 
     #report-modal-content .overflow-y-auto {
         overflow: visible !important;
-        max-height: none !important;
         height: auto !important;
+        max-height: none !important;
     }
 
     section {
         page-break-inside: avoid !important;
-        margin-bottom: 3rem !important;
+        margin-bottom: 2.5rem !important;
         display: block !important;
         clear: both !important;
-    }
-
-    .no-print,
-    button,
-    svg,
-    .no-print * {
-        display: none !important;
     }
 
     .grid {
@@ -252,20 +263,15 @@ select,
     }
 
     .grid>div {
-        margin-bottom: 2rem !important;
+        margin-bottom: 1.5rem !important;
         page-break-inside: avoid !important;
     }
 
-    /* Normalize text colors for high-contrast prints */
+    /* Ensure high contrast for text */
     .text-slate-400,
     .text-slate-500,
     .text-slate-600,
     .text-slate-700 {
         color: #000 !important;
-    }
-
-    /* Ensure the title is always at the top */
-    .p-8.border-b {
-        padding: 0 0 2rem 0 !important;
     }
 }
