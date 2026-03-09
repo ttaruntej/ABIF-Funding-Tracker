@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -13,14 +13,15 @@ const DATA_FILE = path.join(process.cwd(), 'public', 'data', 'opportunities.json
 const HISTORY_FILE = path.join(process.cwd(), 'public', 'data', 'last_email_sent.json');
 
 async function sendEmail() {
-    const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, ABIF_TEAM_EMAIL, TARGET_EMAILS, GEMINI_API_KEY } = process.env;
+    const { RESEND_API_KEY, SMTP_FROM, ABIF_TEAM_EMAIL, TARGET_EMAILS, GEMINI_API_KEY } = process.env;
 
     // Determine recipients
     let finalRecipients = TARGET_EMAILS && TARGET_EMAILS.trim() !== '' ? TARGET_EMAILS : ABIF_TEAM_EMAIL;
 
-    // Require config to send email
-    if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !finalRecipients) {
-        console.log('  ℹ Email notification skipped: SMTP credentials or recipient emails not fully configured.');
+    // Require Resend API Key to send email
+    if (!RESEND_API_KEY || !finalRecipients) {
+        console.log('  ℹ Email notification skipped: RESEND_API_KEY or recipient emails not fully configured.');
+        console.log('  💡 For IIT LAN: SMTP is blocked. Use Resend API Key to bypass firewall.');
         process.exit(1);
     }
 
@@ -56,15 +57,7 @@ async function sendEmail() {
 
     console.log(`\n─── Preparing Email for ${incubatorOpps.length} Incubator Opportunities ───`);
 
-    const transporter = nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: Number(SMTP_PORT) || 587,
-        secure: Number(SMTP_PORT) === 465,
-        auth: {
-            user: SMTP_USER,
-            pass: SMTP_PASS,
-        },
-    });
+    const resend = new Resend(RESEND_API_KEY);
 
     // --- AI GENERATION ---
     let aiIntro = `<p style="font-size: 16px; line-height: 1.6; color: #475569; margin-bottom: 24px;">Greetings! I am the <strong>AI Agent of Tarun Tej Thadana (TBI Manager, ABIF)</strong>. I have compiled the latest deep-scan across the Indian funding ecosystem for you. Here are the active mandates relevant for our incubator and portfolio initiatives:</p>`;
@@ -198,15 +191,20 @@ async function sendEmail() {
     `;
 
     try {
-        const recipients = finalRecipients.split(',').map(e => e.trim()).filter(e => e).join(', ');
+        const recipients = finalRecipients.split(',').map(e => e.trim()).filter(e => e);
 
-        const info = await transporter.sendMail({
-            from: SMTP_FROM || '"ABIF AI Agent" <abif.tbimanager@gmail.com>',
+        const { data, error } = await resend.emails.send({
+            from: SMTP_FROM || 'ABIF Agent <onboarding@resend.dev>',
             to: recipients,
             subject: aiSubject,
             html: htmlContent,
         });
-        console.log(`  ✓ Email sent successfully to: ${recipients} (ID: ${info.messageId})`);
+
+        if (error) {
+            throw error;
+        }
+
+        console.log(`  ✓ Email sent successfully via Resend to: ${recipients.join(', ')} (ID: ${data.id})`);
 
         // --- PERSISTENCE: Save current batch to history ---
         fs.writeFileSync(HISTORY_FILE, JSON.stringify(incubatorOpps, null, 2));
