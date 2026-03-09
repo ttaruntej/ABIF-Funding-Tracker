@@ -38,7 +38,7 @@ const IntelligenceReport = ({
                     <div className="hidden print:block mb-12 border-b-2 border-slate-900 pb-8">
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-6">
-                                <img src="https://abif.iitkgp.ac.in/logos/logo.png" alt="ABIF Logo" className="w-20 h-20 object-contain" />
+                                <img src="/logos/abif-logo.png" alt="ABIF Logo" className="w-20 h-20 object-contain" />
                                 <div>
                                     <h1 className="text-3xl font-black text-slate-950 uppercase tracking-tighter">Agri-Business Incubation Centre</h1>
                                     <p className="text-sm font-bold text-slate-600 uppercase tracking-widest">IIT Kharagpur • Strategic Funding Intelligence</p>

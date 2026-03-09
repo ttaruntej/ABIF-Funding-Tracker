@@ -45,7 +45,7 @@ const Header = ({
                 {/* Tactical Brand - Compact on mobile */}
                 <div className="flex items-center gap-2 shrink-0">
                     <div className="relative">
-                        <img src="https://abif.iitkgp.ac.in/logos/logo.png" alt="ABIF" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
+                        <img src="/logos/abif-logo.png" alt="ABIF" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
                         <div className="absolute inset-0 bg-blue-500/10 blur-lg rounded-full" />
                     </div>
                     <div className="hidden lg:flex flex-col text-left leading-none group/intel relative" title="Funding Intelligence Core">
