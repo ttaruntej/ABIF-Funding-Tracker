@@ -11,10 +11,13 @@ export const useEmailDispatch = (addLog) => {
 
     const [emailCooldown, setEmailCooldown] = useState(0);
 
-    const loadDispatchMeta = async () => {
+    const loadDispatchMeta = async (isRefresh = false) => {
         try {
             const meta = await fetchDispatchMeta();
-            if (meta) setDispatchMeta(meta);
+            if (meta) {
+                setDispatchMeta(meta);
+                if (isRefresh) addLog('Dispatch metadata synced', 'success');
+            }
         } catch (e) {
             console.warn('Dispatch meta not available');
         }
@@ -22,6 +25,10 @@ export const useEmailDispatch = (addLog) => {
 
     useEffect(() => {
         loadDispatchMeta();
+
+        // Optional: Periodic sync if the modal is open or periodically in background
+        const interval = setInterval(() => loadDispatchMeta(), 30000);
+        return () => clearInterval(interval);
     }, []);
 
     const handleEmailTrigger = async (targetEmails) => {
@@ -77,7 +84,7 @@ export const useEmailDispatch = (addLog) => {
 
                             setEmailNotification({ type: 'success', message: 'Intelligence briefing dispatched!' });
                             addLog(`Briefing Dispatched successfully`, 'success');
-                            loadDispatchMeta(); // Reload meta after success
+                            loadDispatchMeta(true); // Enhanced reload meta with logging after success
                             setTimeout(() => setEmailNotification(null), 8000);
                         }
                     }
