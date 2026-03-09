@@ -9,7 +9,8 @@ import {
     Archive,
     LayoutGrid,
     X,
-    ChevronUp
+    ChevronUp,
+    Zap
 } from 'lucide-react';
 
 const TacticalSpear = ({
