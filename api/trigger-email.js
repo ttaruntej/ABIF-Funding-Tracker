@@ -12,13 +12,13 @@ export default async function handler(req, res) {
         return res.status(200).end()
     }
 
-    const GH_TOKEN = process.env.GH_TOKEN;
+    const GH_TOKEN = process.env.GH_TOKEN || process.env.GH_PAT;
     const REPO_OWNER = 'ttaruntej';
     const REPO_NAME = 'ABIF-Funding-Tracker';
     const WORKFLOW_ID = 'send-email.yml';
 
     if (!GH_TOKEN) {
-        return res.status(500).json({ error: 'GitHub Token not configured' });
+        return res.status(500).json({ error: 'GitHub Authentication Token (GH_TOKEN or GH_PAT) not configured in Vercel' });
     }
 
     const headers = {
