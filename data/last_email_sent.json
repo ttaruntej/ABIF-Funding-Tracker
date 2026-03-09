@@ -1,5 +1,205 @@
 [
   {
+    "name": "LIC HFL Social Trailblazer Program",
+    "body": "LIC Housing Finance Ltd",
+    "maxAward": "₹30 Lakhs",
+    "deadline": "Cohort Cycles",
+    "link": "https://www.lichousing.com/csr",
+    "description": "Incubation partner program focused on social impact, MVP, and early-revenue startups.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "csr",
+    "lastScraped": "2026-03-09T05:21:17.380Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "Social Impact",
+      "AgriTech"
+    ],
+    "stages": [
+      "Ideation",
+      "Seed"
+    ],
+    "criticalEligibility": [
+      "Must possess valid NGO Darpan ID (NITI Aayog)",
+      "TBI must demonstrate a specialization in social impact ventures",
+      "Founding team must not have political or religious affiliations"
+    ]
+  },
+  {
+    "name": "IDFC FIRST Bank IGNITE Accelerator",
+    "body": "IDFC FIRST Bank",
+    "maxAward": "₹30 Lakhs",
+    "deadline": "Recurring Cycle",
+    "link": "https://www.idfcfirstbank.com/csr",
+    "description": "Corporate-backed growth accelerator partnering with academic TBIs like IITs/IIMs.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "csr",
+    "lastScraped": "2026-03-09T05:21:17.380Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "Technology",
+      "Social Impact"
+    ],
+    "stages": [
+      "Seed",
+      "Growth"
+    ],
+    "criticalEligibility": [
+      "3-Year established track record in incubation activities",
+      "Mandatory selection/due-diligence committee for startups",
+      "Must have audited financials for last 3 financial years"
+    ]
+  },
+  {
+    "name": "Kotak BizLabs Accelerator (Velocity & IRP)",
+    "body": "Kotak Mahindra Bank",
+    "maxAward": "₹30 Lakhs",
+    "deadline": "Recurring Cohorts",
+    "link": "https://www.kotak.com/en/about-us/corporate-responsibility.html",
+    "description": "Implementation partnership with specialized TBIs to run growth-stage and investor readiness cohorts.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "csr",
+    "lastScraped": "2026-03-09T05:21:17.380Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "DeepTech",
+      "HealthTech",
+      "FinTech"
+    ],
+    "stages": [
+      "Seed",
+      "Growth"
+    ],
+    "criticalEligibility": [
+      "CSR-1 Registration (MCA SRN) is non-negotiable",
+      "Must hold valid 12A and 80G tax registrations",
+      "Minimum track record of handling high-value grant disbursements"
+    ]
+  },
+  {
+    "name": "Infosys Social Innovation & Entrepreneurship CSR",
+    "body": "Infosys Foundation",
+    "maxAward": "Project Based",
+    "deadline": "FY 2025-26 Cycle",
+    "link": "https://www.infosys.com/infosys-foundation/grants.html",
+    "description": "Partnership with Section 8 TBIs for implementing social innovation and skills development programs.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "csr",
+    "lastScraped": "2026-03-09T05:21:17.380Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "Social Innovation",
+      "Education"
+    ],
+    "stages": [
+      "Ideation",
+      "Seed"
+    ],
+    "criticalEligibility": [
+      "Must be a registered Section 8 company/Trust/Society",
+      "Mandatory impact assessment reports for local CSR committees",
+      "Must have strict mechanisms for fund ring-fencing"
+    ]
+  },
+  {
+    "name": "MeitY TIDE 2.0",
+    "body": "MeitY",
+    "maxAward": "₹27.2 Crores",
+    "deadline": "Rolling",
+    "link": "https://tide20.meity.gov.in/",
+    "description": "Support for tech-driven startups in Society-linked sectors (IoT, AI, Robotics).",
+    "status": "Rolling",
+    "linkStatus": "verified",
+    "category": "national",
+    "lastScraped": "2026-03-09T05:09:14.848Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "ICT",
+      "AI",
+      "IoT",
+      "Robotics"
+    ],
+    "stages": [
+      "Seed",
+      "Expansion"
+    ],
+    "criticalEligibility": [
+      "Group 1/2 centers must be Section 8/25 entities",
+      "Minimum 2-3 years of operational experience required for higher tiers",
+      "Mandatory industry collaborations/tie-ups",
+      "Specific focus on societal areas identified by MeitY"
+    ]
+  },
+  {
+    "name": "NIDHI-Technology Business Incubator (NIDHI-TBI)",
+    "body": "DST (MoST)",
+    "maxAward": "₹11.5 Crores",
+    "deadline": "Rolling",
+    "link": "https://nidhi.dst.gov.in/",
+    "description": "Establishment and support grant for Knowledge-based and technology-driven startups.",
+    "status": "Rolling",
+    "linkStatus": "verified",
+    "category": "national",
+    "lastScraped": "2026-03-09T05:09:14.848Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "DeepTech",
+      "Hardware"
+    ],
+    "stages": [
+      "Ideation",
+      "Seed"
+    ],
+    "criticalEligibility": [
+      "Minimum 20,000 sq. ft. furnished space with 30-year lease",
+      "Host Institute must take financial responsibility after 5 years",
+      "Must be registered strictly as a not-for-profit (Section 8/Society/Trust)",
+      "Capacity to incubate at least 30 ventures simultaneously"
+    ]
+  },
+  {
+    "name": "Startup India Seed Fund Scheme (SISFS) - Incubator Grant",
+    "body": "DPIIT / Startup India",
+    "maxAward": "₹5 Crores",
+    "deadline": "Rolling",
+    "link": "https://seedfund.startupindia.gov.in/",
+    "description": "Grant for eligible incubators to disburse seed funds to early-stage startups.",
+    "status": "Rolling",
+    "linkStatus": "verified",
+    "category": "national",
+    "lastScraped": "2026-03-09T05:09:14.847Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "Agnostic"
+    ],
+    "stages": [
+      "Seed"
+    ],
+    "criticalEligibility": [
+      "Must have physical facility to seat at least 25 individuals",
+      "At least 5 startups undergoing physical incubation (10 if not govt-assisted)",
+      "Cannot disburse seed funds from third-party private entities",
+      "Must have full-time CEO with experience in business development"
+    ]
+  },
+  {
     "name": "BIRAC–Social Alpha Assistive Tech Quest",
     "body": "Tata Trusts / BIRAC",
     "maxAward": "₹25 Lakhs",
@@ -19,6 +219,11 @@
     ],
     "stages": [
       "All Stages"
+    ],
+    "criticalEligibility": [
+      "Prototype must be at TRL 4 or higher",
+      "Lead applicant must be a DPIIT-recognized startup",
+      "Previous awardees of BIRAC-Social Alpha cannot apply"
     ]
   },
   {
