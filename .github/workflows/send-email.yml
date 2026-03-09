@@ -44,8 +44,8 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add public/data/last_email_sent.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update email history for delta tracking"
+          git add public/data/last_email_sent.json public/data/last_dispatch_meta.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update email history and dispatch metadata"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
