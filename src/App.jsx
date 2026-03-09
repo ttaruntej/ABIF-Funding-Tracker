@@ -21,7 +21,7 @@ import FeedbackSection from './components/FeedbackSection';
 import TacticalSpear from './components/TacticalSpear';
 import EcosystemTicker from './components/EcosystemTicker';
 import LazyGrid from './components/LazyGrid';
-import { Activity, X, TrendingUp, CheckCircle2, Cpu } from 'lucide-react';
+import { Activity, X, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 const IntelligenceReport = lazy(() => import('./components/IntelligenceReport'));
 
@@ -33,25 +33,12 @@ const App = () => {
         } catch (e) { return 'light'; }
     });
 
-    const [lowPerf, setLowPerf] = useState(() => {
-        try {
-            return localStorage.getItem('lowPerf') === 'true';
-        } catch (e) { return false; }
-    });
-
     useEffect(() => {
         const root = document.documentElement;
         if (theme === 'dark') root.classList.add('dark');
         else root.classList.remove('dark');
         try { localStorage.setItem('theme', theme); } catch (e) { }
     }, [theme]);
-
-    useEffect(() => {
-        const root = document.documentElement;
-        if (lowPerf) root.classList.add('low-perf');
-        else root.classList.remove('low-perf');
-        try { localStorage.setItem('lowPerf', lowPerf); } catch (e) { }
-    }, [lowPerf]);
 
     // 2. Data & Ecosystem State (via Custom Hook)
     const {
@@ -262,8 +249,6 @@ const App = () => {
                 emailCooldown={emailCooldown}
                 theme={theme}
                 toggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                lowPerf={lowPerf}
-                setLowPerf={setLowPerf}
                 currentView={currentView}
                 setCurrentView={setCurrentView}
             />
@@ -400,3 +385,4 @@ const App = () => {
 };
 
 export default App;
+
