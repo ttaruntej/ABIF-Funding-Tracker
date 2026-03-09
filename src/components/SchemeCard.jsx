@@ -89,6 +89,23 @@ const SchemeCard = ({ scheme, showCategoryBadge, isArchivedMode }) => {
                     }`}>
                     {scheme.description}
                 </p>
+                {/* Critical Eligibility (Gotchas) */}
+                {scheme.criticalEligibility && scheme.criticalEligibility.length > 0 && (
+                    <div className="mt-4 mb-6 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+                        <div className="flex items-center gap-2 mb-2">
+                            <AlertTriangle size={12} className="text-amber-600 dark:text-amber-500" />
+                            <span className="text-[10px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest">Critical Eligibility</span>
+                        </div>
+                        <ul className="space-y-1.5">
+                            {scheme.criticalEligibility.map((item, idx) => (
+                                <li key={idx} className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-start gap-2 leading-tight">
+                                    <div className="w-1 h-1 rounded-full bg-amber-500 shrink-0 mt-1.5" />
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
 
             {/* Bottom Strategic Layer */}

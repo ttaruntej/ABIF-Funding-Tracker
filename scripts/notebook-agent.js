@@ -81,8 +81,11 @@ async function runDiscovery() {
             console.log(`   🔸 STEP 3: Importing Sources (Max 15)...`);
             // mcp_notebooklm_research_import
 
-            console.log(`   🔸 STEP 4: Semantic Extraction...`);
-            // mcp_notebooklm_notebook_query -> Extract JSON
+            console.log(`   🔸 STEP 4: Semantic Extraction (PDF Gotcha Extraction Engaged)...`);
+            // mcp_notebooklm_notebook_query: "Extract JSON objects for each funding scheme mentioned in the sources. 
+            // For each scheme, find 'Critical Eligibility' (the 'Gotchas') - these are the hard disqualifiers 
+            // hidden in long text (e.g. founder age, equity requirements, geographic limits, sector-specific bans). 
+            // Return them as a 'criticalEligibility' array in the JSON."
 
             // Example data for visualization in logs:
             const mockDiscovered = []; // This would be populated by the AI agent

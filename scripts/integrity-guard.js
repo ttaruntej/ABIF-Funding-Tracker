@@ -22,7 +22,12 @@ const STATIC_RECORDS = [
         link: 'https://www.sidbi.in/en/srijan',
         description: 'Revolving fund for technology innovation supporting startups and MSMEs with debt financing.',
         targetAudience: ['startup'],
-        category: 'national'
+        category: 'national',
+        criticalEligibility: [
+            "Must be a private limited company",
+            "Must have a commercially viable prototype",
+            "Institutional debt-to-equity ratio must be < 2:1"
+        ]
     },
     {
         name: 'Atal Incubation Centre (AIC) Grant',
@@ -32,7 +37,12 @@ const STATIC_RECORDS = [
         link: 'https://aim.gov.in/aic.php',
         description: 'Establishment grant for new incubation centres to support the Indian innovation ecosystem.',
         targetAudience: ['incubator'],
-        category: 'national'
+        category: 'national',
+        criticalEligibility: [
+            "Entity must be at least 3 years old",
+            "Requires 10,000 sq. ft. of dedicated space",
+            "Matching contribution required from host institution"
+        ]
     },
     {
         name: 'DST NIDHI - TBI Support',
@@ -42,7 +52,12 @@ const STATIC_RECORDS = [
         link: 'https://nidhi.dst.gov.in/',
         description: 'National initiative for developing and harnessing innovations via Technology Business Incubators.',
         targetAudience: ['incubator'],
-        category: 'national'
+        category: 'national',
+        criticalEligibility: [
+            "Must be a Section 8 (not-for-profit) company",
+            "Focus on technology and knowledge-based ventures",
+            "Must have a dedicated core team"
+        ]
     },
     {
         name: 'IIG - CSR Opportunities Portal',
@@ -52,7 +67,12 @@ const STATIC_RECORDS = [
         link: 'https://indiainvestmentgrid.gov.in/opportunities/csr',
         description: 'Official portal connecting Section 8 Incubators with corporate CSR mandates.',
         targetAudience: ['incubator', 'startup'],
-        category: 'csr'
+        category: 'csr',
+        criticalEligibility: [
+            "Requires a valid CSR-1 certificate",
+            "Must have 80G and 12A registration",
+            "Impact assessment report mandatory for past grants"
+        ]
     }
 ];
 
