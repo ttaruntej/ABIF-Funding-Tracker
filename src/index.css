@@ -212,10 +212,29 @@ html {
 /* UI feedback for all buttons & interactive items */
 button,
 a,
-input,
 [role="button"],
 .cursor-pointer {
     cursor: pointer !important;
+}
+
+input,
+textarea {
+    cursor: text !important;
+}
+
+input:hover,
+textarea:hover {
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+input:focus,
+textarea:focus {
+    background-color: white;
+}
+
+.dark input:focus,
+.dark textarea:focus {
+    background-color: rgba(15, 23, 42, 0.8);
 }
 
 /* 
