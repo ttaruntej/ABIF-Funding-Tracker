@@ -1,5 +1,176 @@
 [
   {
+    "name": "AMRUT 2.0 Water Pitch Challenge",
+    "body": "MoHUA",
+    "maxAward": "₹20 Lakhs",
+    "deadline": "31-03-2026",
+    "link": "https://innovateindia.mygov.in/",
+    "description": "Scaling decentralized circular economy solutions for water management.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "national",
+    "lastScraped": "2026-03-09T05:23:48.834Z",
+    "targetAudience": [
+      "startup"
+    ],
+    "sectors": [
+      "Cleantech",
+      "Sustainability"
+    ],
+    "stages": [
+      "Seed",
+      "Growth"
+    ],
+    "criticalEligibility": [
+      "Technology must be capable of lab demonstration for scaling",
+      "Tranche-based disbursement: 5L (start), 7L (mid), 8L (final)",
+      "Specific focus on used water and urban flooding governance",
+      "Open to officially recognized Indian startups only"
+    ]
+  },
+  {
+    "name": "India-Pitch-Pilot-Scale-Startup Challenge (AMRUT 2.0)",
+    "body": "MoHUA / MyGov",
+    "maxAward": "₹20 Lakhs",
+    "deadline": "31-03-2026",
+    "link": "https://innovateindia.mygov.in/ipps-startup/",
+    "description": "Grant for water-secure cities addressing urban water, wastewater, and floods.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "national",
+    "lastScraped": "2026-03-09T05:23:48.834Z",
+    "targetAudience": [
+      "startup"
+    ],
+    "sectors": [
+      "Water",
+      "Sustainability"
+    ],
+    "stages": [
+      "Seed",
+      "Expansion"
+    ],
+    "criticalEligibility": [
+      "Must have a viable prototype ready for pilot-testing (No concept-only ideas)",
+      "DPIIT Recognition mandatory",
+      "Grant tranches tied strictly to Fund Utilisation Certificates at each milestone",
+      "Usage restricted to solution augmentation and city pilot costs"
+    ]
+  },
+  {
+    "name": "LIC HFL Social Trailblazer Program",
+    "body": "LIC Housing Finance Ltd",
+    "maxAward": "₹30 Lakhs",
+    "deadline": "Cohort Cycles",
+    "link": "https://www.lichousing.com/csr",
+    "description": "Incubation partner program focused on social impact, MVP, and early-revenue startups.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "csr",
+    "lastScraped": "2026-03-09T05:21:17.380Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "Social Impact",
+      "AgriTech"
+    ],
+    "stages": [
+      "Ideation",
+      "Seed"
+    ],
+    "criticalEligibility": [
+      "Must possess valid NGO Darpan ID (NITI Aayog)",
+      "TBI must demonstrate a specialization in social impact ventures",
+      "Founding team must not have political or religious affiliations"
+    ]
+  },
+  {
+    "name": "IDFC FIRST Bank IGNITE Accelerator",
+    "body": "IDFC FIRST Bank",
+    "maxAward": "₹30 Lakhs",
+    "deadline": "Recurring Cycle",
+    "link": "https://www.idfcfirstbank.com/csr",
+    "description": "Corporate-backed growth accelerator partnering with academic TBIs like IITs/IIMs.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "csr",
+    "lastScraped": "2026-03-09T05:21:17.380Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "Technology",
+      "Social Impact"
+    ],
+    "stages": [
+      "Seed",
+      "Growth"
+    ],
+    "criticalEligibility": [
+      "3-Year established track record in incubation activities",
+      "Mandatory selection/due-diligence committee for startups",
+      "Must have audited financials for last 3 financial years"
+    ]
+  },
+  {
+    "name": "Kotak BizLabs Accelerator (Velocity & IRP)",
+    "body": "Kotak Mahindra Bank",
+    "maxAward": "₹30 Lakhs",
+    "deadline": "Recurring Cohorts",
+    "link": "https://www.kotak.com/en/about-us/corporate-responsibility.html",
+    "description": "Implementation partnership with specialized TBIs to run growth-stage and investor readiness cohorts.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "csr",
+    "lastScraped": "2026-03-09T05:21:17.380Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "DeepTech",
+      "HealthTech",
+      "FinTech"
+    ],
+    "stages": [
+      "Seed",
+      "Growth"
+    ],
+    "criticalEligibility": [
+      "CSR-1 Registration (MCA SRN) is non-negotiable",
+      "Must hold valid 12A and 80G tax registrations",
+      "Minimum track record of handling high-value grant disbursements"
+    ]
+  },
+  {
+    "name": "Infosys Social Innovation & Entrepreneurship CSR",
+    "body": "Infosys Foundation",
+    "maxAward": "Project Based",
+    "deadline": "FY 2025-26 Cycle",
+    "link": "https://www.infosys.com/infosys-foundation/grants.html",
+    "description": "Partnership with Section 8 TBIs for implementing social innovation and skills development programs.",
+    "status": "Open",
+    "linkStatus": "verified",
+    "category": "csr",
+    "lastScraped": "2026-03-09T05:21:17.380Z",
+    "targetAudience": [
+      "incubator"
+    ],
+    "sectors": [
+      "Social Innovation",
+      "Education"
+    ],
+    "stages": [
+      "Ideation",
+      "Seed"
+    ],
+    "criticalEligibility": [
+      "Must be a registered Section 8 company/Trust/Society",
+      "Mandatory impact assessment reports for local CSR committees",
+      "Must have strict mechanisms for fund ring-fencing"
+    ]
+  },
+  {
     "name": "D.E.S.I.G.N for BioE3 Challenge",
     "body": "DBT / MyGov",
     "maxAward": "Incubation Support",
