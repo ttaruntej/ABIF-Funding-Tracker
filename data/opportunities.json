@@ -19,6 +19,11 @@
     ],
     "stages": [
       "All Stages"
+    ],
+    "criticalEligibility": [
+      "Prototype must be at TRL 4 or higher",
+      "Lead applicant must be a DPIIT-recognized startup",
+      "Previous awardees of BIRAC-Social Alpha cannot apply"
     ]
   },
   {
