@@ -1,6 +1,10 @@
-export const generateBriefing = (data) => {
+export const generateBriefing = (data, { categoryLabel = '', search = '' } = {}) => {
     if (!data || data.length === 0) return {
-        summary: "No opportunities currently tracked.",
+        summary: search
+            ? `No strategic mandates matching "${search}" were identified in the current intelligence sweep.`
+            : categoryLabel
+                ? `The ${categoryLabel} segment currently shows no active funding mandates.`
+                : "No opportunities currently tracked.",
         insights: [],
         highlight: null,
         status: 'dormant'
@@ -45,8 +49,14 @@ export const generateBriefing = (data) => {
     const sortedProviders = Object.entries(providerCounts).sort(([, a], [, b]) => b - a);
     const mainDriver = sortedProviders[0]?.[0] || "Government portals";
 
+    const contextPrefix = search
+        ? `Intelligence scan for "${search}"`
+        : categoryLabel && categoryLabel !== 'All'
+            ? `Strategic synthesis of ${categoryLabel} segments`
+            : `Institutional research synthesis of ${data.length} active opportunities`;
+
     return {
-        summary: `Institutional research synthesis of ${data.length} active opportunities indicates primary traction in ${topSector} funding segments.`,
+        summary: `${contextPrefix} indicates primary traction in ${topSector} funding segments.`,
         insights: [
             `Strategic Note: ${mainDriver} is currently orchestrating the majority of institutional capital frameworks.`,
             `Liquidity Exposure: ${highValueCount} active programs provide capital in the Crore-plus tier.`,

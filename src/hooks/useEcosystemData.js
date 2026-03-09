@@ -91,10 +91,11 @@ export const useEcosystemData = () => {
         CATEGORIES.forEach(c => { counts[c.key] = 0; });
         const sectorSet = new Set();
 
-        const activeItemsForBriefing = [];
-        let totalActive = 0;
-        let activeOpenCount = 0;
-        let closingSoonCount = 0;
+        // Metrics for THIS specific filtered context
+        const contextualActive = [];
+        let contextualTotalCount = 0;
+        let contextualOpenCount = 0;
+        let contextualClosingSoonCount = 0;
 
         opportunities.forEach(o => {
             const q = getMatchQualifiers(o);
@@ -107,22 +108,20 @@ export const useEcosystemData = () => {
                 }
             }
 
-            // 2. Primary Filtered Result
+            // 2. Primary Filtered Result & Contextual Stats
             if (q.matchesView && q.matchesAudience && q.matchesSector && q.matchesStatus && q.matchesSearch &&
                 (activeCategory === 'all' || oCat === activeCategory)) {
+
                 result.push(o);
+
+                contextualTotalCount++;
+                if (['Open', 'Rolling', 'Closing Soon'].includes(o.status)) {
+                    contextualOpenCount++;
+                    contextualActive.push(o);
+                }
+                if (o.status === 'Closing Soon') contextualClosingSoonCount++;
             }
 
-            // 3. Overall Dashboard Stats (independent of many filters)
-            const isArchive = ['Closed', 'Verify Manually'].includes(o.status);
-            if (!isArchive) {
-                totalActive++;
-                if (['Open', 'Rolling', 'Closing Soon'].includes(o.status)) {
-                    activeOpenCount++;
-                    activeItemsForBriefing.push(o);
-                }
-                if (o.status === 'Closing Soon') closingSoonCount++;
-            }
 
             // 4. Available Sectors
             if (q.matchesView) {
@@ -131,10 +130,13 @@ export const useEcosystemData = () => {
         });
 
         const statsObj = {
-            total: totalActive,
-            active: activeOpenCount,
-            closingSoon: closingSoonCount,
-            briefing: generateBriefing(activeItemsForBriefing)
+            total: contextualTotalCount,
+            active: contextualOpenCount,
+            closingSoon: contextualClosingSoonCount,
+            briefing: generateBriefing(contextualActive, {
+                categoryLabel: CATEGORIES.find(c => c.key === activeCategory)?.label,
+                search: searchQuery
+            })
         };
 
         const sentiment = (statsObj.active / (statsObj.total || 1)) > 0.5
