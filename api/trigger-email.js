@@ -68,6 +68,28 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
+        const { action } = req.query;
+
+        // NEW: Live Metadata Fetch (Bypasses GitHub Pages build lag)
+        if (action === 'fetch_meta') {
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/public/data/last_dispatch_meta.json`,
+                    { headers }
+                );
+
+                if (!response.ok) return res.status(response.status).json({ error: 'Meta file not found yet' });
+
+                const data = await response.json();
+                // GitHub returns content as base64
+                const content = Buffer.from(data.content, 'base64').toString('utf-8');
+                return res.status(200).json(JSON.parse(content));
+            } catch (error) {
+                return res.status(500).json({ error: 'Failed to fetch live metadata' });
+            }
+        }
+
+        // Standard Workflow Status Check
         try {
             const response = await fetch(
                 `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_ID}/runs?per_page=1`,

@@ -27,11 +27,17 @@ export const fetchResearchReport = async () => {
 
 export const fetchDispatchMeta = async () => {
     try {
-        const res = await fetch(`./data/last_dispatch_meta.json?v=${Date.now()}`);
-        if (!res.ok) throw new Error(`META FETCH FAILED: ${res.status}`);
-        return await res.json();
+        // High-Priority: Fetch Live Meta from Proxy (Bypasses GH Pages Build Lag)
+        const res = await fetch(`${API_BASE_URL}/api/trigger-email?action=fetch_meta&v=${Date.now()}`);
+        if (res.ok) return await res.json();
+
+        // Fallback: Fetch from Static JSON (May be delayed by 2-3 mins)
+        const staticRes = await fetch(`./data/last_dispatch_meta.json?v=${Date.now()}`);
+        if (staticRes.ok) return await staticRes.json();
+
+        return null;
     } catch (err) {
-        console.warn('ℹ️ No dispatch metadata found yet.');
+        console.warn('ℹ️ Live dispatch meta unreachable, check API status.');
         return null;
     }
 };
