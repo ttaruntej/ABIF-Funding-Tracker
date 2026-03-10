@@ -15,10 +15,10 @@ export default async function handler(req, res) {
         return res.status(200).end()
     }
 
-    const GH_TOKEN = process.env.GH_TOKEN;
-    const REPO_OWNER = 'ttaruntej';
-    const REPO_NAME = 'ABIF-Funding-Tracker';
-    const WORKFLOW_ID = 'scraper-sync.yml';
+    const GH_TOKEN = process.env.GH_TOKEN || process.env.GH_PAT;
+    const REPO_OWNER = process.env.GH_REPO_OWNER || 'ttaruntej';
+    const REPO_NAME = process.env.GH_REPO_NAME || 'abif-funding-radar';
+    const WORKFLOW_ID = 'source-sync.yml';
 
     if (!GH_TOKEN) {
         return res.status(500).json({ error: 'GitHub Token not configured' });
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         'X-GitHub-Api-Version': '2022-11-28',
     };
 
-    // TRIGGER SCARPER (POST)
+    // TRIGGER VERIFIED SOURCE SYNC (POST)
     if (req.method === 'POST') {
         try {
             const response = await fetch(
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
             );
 
             if (response.status === 204) {
-                return res.status(200).json({ message: 'Scraper triggered' });
+                return res.status(200).json({ message: 'Verified source sync triggered' });
             }
             const errorData = await response.json();
             return res.status(response.status).json({ error: errorData.message });
