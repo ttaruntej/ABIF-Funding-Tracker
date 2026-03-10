@@ -70,7 +70,8 @@ const App = () => {
         emailNotification,
         emailCooldown,
         dispatchMeta,
-        handleEmailTrigger
+        handleEmailTrigger,
+        setEmailNotification
     } = useEmailDispatch(addLog);
 
     // 5. UI Local State
@@ -168,13 +169,39 @@ const App = () => {
 
             {emailNotification && (
                 <div className="fixed bottom-28 right-28 z-[110] animate-in slide-in-from-right-8">
-                    <div className={`backdrop-blur-2xl border shadow-2xl rounded-2xl p-4 flex items-center gap-4 w-[280px] bg-white/90 dark:bg-slate-900/90 ${emailNotification.type === 'success' ? 'border-emerald-500/50' :
+                    <div className={`backdrop-blur-2xl border shadow-2xl rounded-2xl p-4 flex items-center gap-4 w-[300px] bg-white/90 dark:bg-slate-900/90 relative ${emailNotification.type === 'success' ? 'border-emerald-500/50' :
                         emailNotification.type === 'error' ? 'border-red-500/50' : 'border-blue-500/50'
                         }`}>
-                        <div className="flex-1">
+
+                        {/* Status Icon */}
+                        <div className="flex-shrink-0">
+                            {emailNotification.type === 'success' ? (
+                                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center animate-success-check">
+                                    <CheckCircle2 size={18} className="text-white" />
+                                </div>
+                            ) : emailNotification.type === 'error' ? (
+                                <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+                                    <X size={18} className="text-white" />
+                                </div>
+                            ) : (
+                                <div className="w-8 h-8 rounded-full border-2 border-t-blue-500 border-transparent animate-spin flex items-center justify-center">
+                                    <Activity size={12} className="text-blue-500" />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex-1 pr-4">
                             <h3 className="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-widest leading-none">Transmission</h3>
                             <p className="text-[8px] text-slate-500 font-bold uppercase mt-2">{emailNotification.message}</p>
                         </div>
+
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setEmailNotification(null)}
+                            className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                        >
+                            <X size={14} />
+                        </button>
                     </div>
                 </div>
             )}

@@ -104,8 +104,23 @@ const server = http.createServer(async (req, res) => {
                     path: `/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/send-email.yml/runs?per_page=1`,
                     headers: ghHeaders
                 }, (ghRes) => {
-                    res.writeHead(ghRes.statusCode, { 'Content-Type': 'application/json' });
-                    ghRes.pipe(res);
+                    let data = '';
+                    ghRes.on('data', chunk => data += chunk);
+                    ghRes.on('end', () => {
+                        const json = JSON.parse(data);
+                        const lastRun = json.workflow_runs?.[0];
+                        if (!lastRun) {
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            return res.end(JSON.stringify({ status: 'unknown' }));
+                        }
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({
+                            status: lastRun.status,
+                            conclusion: lastRun.conclusion,
+                            updated_at: lastRun.updated_at,
+                            run_id: lastRun.id
+                        }));
+                    });
                 });
             }
         }
@@ -136,8 +151,23 @@ const server = http.createServer(async (req, res) => {
                 path: `/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/scraper-sync.yml/runs?per_page=1`,
                 headers: ghHeaders
             }, (ghRes) => {
-                res.writeHead(ghRes.statusCode, { 'Content-Type': 'application/json' });
-                ghRes.pipe(res);
+                let data = '';
+                ghRes.on('data', chunk => data += chunk);
+                ghRes.on('end', () => {
+                    const json = JSON.parse(data);
+                    const lastRun = json.workflow_runs?.[0];
+                    if (!lastRun) {
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        return res.end(JSON.stringify({ status: 'unknown' }));
+                    }
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({
+                        status: lastRun.status,
+                        conclusion: lastRun.conclusion,
+                        updated_at: lastRun.updated_at,
+                        run_id: lastRun.id
+                    }));
+                });
             });
         }
 

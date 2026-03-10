@@ -97,6 +97,27 @@ html {
     animation: signalPulse 1s ease-out infinite;
 }
 
+@keyframes successCheck {
+    0% {
+        transform: scale(0) rotate(-45deg);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2) rotate(0deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.animate-success-check {
+    animation: successCheck 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
 /* Custom Scrollbars */
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
@@ -366,5 +387,3 @@ textarea:focus {
         -webkit-backdrop-filter: blur(8px) !important;
     }
 }
-
-

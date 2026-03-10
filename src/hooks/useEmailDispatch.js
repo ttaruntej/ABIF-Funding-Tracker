@@ -92,7 +92,7 @@ export const useEmailDispatch = (addLog) => {
                             setEmailNotification({ type: 'success', message: 'Intelligence briefing dispatched!' });
                             addLog(`Briefing Dispatched successfully`, 'success');
                             loadDispatchMeta(true); // Enhanced reload meta with logging after success
-                            setTimeout(() => setEmailNotification(null), 8000);
+                            setTimeout(() => setEmailNotification(null), 30000);
                         }
                     }
                 } catch (e) { }
@@ -112,6 +112,7 @@ export const useEmailDispatch = (addLog) => {
         lastEmailDispatchTs,
         dispatchMeta,
         loadDispatchMeta,
-        handleEmailTrigger
+        handleEmailTrigger,
+        setEmailNotification
     };
 };
